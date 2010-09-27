@@ -23,7 +23,7 @@ function! s:source.initialize() "{{{
 
   augroup neocomplcache
     autocmd FileType haskell call s:caching_modules()
-    autocmd CursorHold * if has_key(s:modules_cache, bufnr('%')) | call s:caching_modules() | endif
+    autocmd InsertLeave * if has_key(s:modules_cache, bufnr('%')) | call s:caching_modules() | endif
   augroup END
 
   command! -nargs=0 NeoComplCacheCachingGhcImports call s:caching_modules()
