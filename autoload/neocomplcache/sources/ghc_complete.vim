@@ -65,6 +65,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     elseif l:line =~# 'LANGUAGE'
       for l:lang in s:lang_cache
         call add(l:list, { 'word': l:lang, 'menu': '[ghc] ' . l:lang })
+        call add(l:list, { 'word': 'No' . l:lang, 'menu': '[ghc] No' . l:lang })
       endfor
     endif
   elseif a:cur_keyword_str =~# '\.'
