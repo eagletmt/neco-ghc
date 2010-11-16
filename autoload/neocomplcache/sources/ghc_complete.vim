@@ -97,7 +97,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 endfunction "}}}
 
 function! neocomplcache#sources#ghc_complete#define() "{{{
-  return s:source
+  return executable('ghc-mod') ? s:source : {}
 endfunction "}}}
 
 function! s:ghc_mod_browse(mod) "{{{
