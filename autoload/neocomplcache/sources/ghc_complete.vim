@@ -39,7 +39,9 @@ function! s:source.get_keyword_pos(cur_text)  "{{{
   endif
 
   if a:cur_text =~# '^import\s'
-    return matchend(a:cur_text, '^import\s\+\(qualified\s\+\)\?')
+    let parp = matchend(a:cur_text, '(')
+    return parp > 0 ? parp :
+          \ matchend(a:cur_text, '^import\s\+\(qualified\s\+\)\?')
   else
     " let l:pattern = neocomplcache#get_keyword_pattern_end('haskell')
     let l:pattern = "\\%([[:alpha:]_'][[:alnum:]_'.]*\\m\\)$"
@@ -54,9 +56,16 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:line = getline('.')
   let l:syn = neocomplcache#get_syn_name(0)
   if l:line =~# '^import\s'
-    for l:mod in s:list_cache
-      call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
-    endfor
+    if l:line =~# '('
+      let l:mod = matchlist(l:line, 'import \([^ ]\+\)')[1]
+      for l:func in s:ghc_mod_browse(l:mod)
+        call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
+      endfor
+    else
+      for l:mod in s:list_cache
+        call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
+      endfor
+    endif
   elseif l:syn =~# 'Pragma'
     if match(l:line, '{-#\s\+\zs\w*') == a:cur_keyword_pos
       for l:p in s:pragmas
