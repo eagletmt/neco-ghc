@@ -55,7 +55,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:line = getline('.')
 
   if l:line =~# '^import\>.*('
-    let l:mod = matchlist(l:line, 'import\s\+\([^ (]\+\)')[1]
+    let l:mod = matchlist(l:line, 'import\s\+\(qualified\s\+\)\?\([^ (]\+\)')[2]
     for l:func in s:ghc_mod_browse(l:mod)
       call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
     endfor
