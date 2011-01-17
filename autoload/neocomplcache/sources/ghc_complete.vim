@@ -38,7 +38,7 @@ function! s:source.get_keyword_pos(cur_text)  "{{{
     return -1
   endif
 
-  if a:cur_text =~# '^import\s'
+  if a:cur_text =~# '^import\>'
     let parp = matchend(a:cur_text, '(')
     return parp > 0 ? parp :
           \ matchend(a:cur_text, '^import\s\+\(qualified\s\+\)\?')
@@ -54,8 +54,8 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
   let l:line = getline('.')
 
-  if l:line =~# '^import\s.*('
-    let l:mod = matchlist(l:line, 'import \([^ ]\+\)')[1]
+  if l:line =~# '^import\>.*('
+    let l:mod = matchlist(l:line, 'import\s\+\([^ (]\+\)')[1]
     for l:func in s:ghc_mod_browse(l:mod)
       call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
     endfor
