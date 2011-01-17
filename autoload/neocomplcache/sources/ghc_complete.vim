@@ -52,20 +52,26 @@ endfunction "}}}
 
 function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
-
   let l:line = getline('.')
+
+  if l:line =~# '^import\s.*('
+    let l:mod = matchlist(l:line, 'import \([^ ]\+\)')[1]
+    for l:func in s:ghc_mod_browse(l:mod)
+      call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
+    endfor
+    return neocomplcache#keyword_filter(l:list, a:cur_keyword_str)
+  endif
+
+  if neocomplcache#is_auto_complete() &&
+        \ len(a:cur_keyword_str) < g:neocomplcache_auto_completion_start_length
+    return []
+  endif
+
   let l:syn = neocomplcache#get_syn_name(0)
   if l:line =~# '^import\s'
-    if l:line =~# '('
-      let l:mod = matchlist(l:line, 'import \([^ ]\+\)')[1]
-      for l:func in s:ghc_mod_browse(l:mod)
-        call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
-      endfor
-    else
-      for l:mod in s:list_cache
-        call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
-      endfor
-    endif
+    for l:mod in s:list_cache
+      call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
+    endfor
   elseif l:syn =~# 'Pragma'
     if match(l:line, '{-#\s\+\zs\w*') == a:cur_keyword_pos
       for l:p in s:pragmas
