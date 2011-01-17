@@ -39,6 +39,9 @@ function! s:source.get_keyword_pos(cur_text)  "{{{
   endif
 
   if a:cur_text =~# '^import\>'
+    if a:cur_text =~# '(.*,'
+      return s:last_matchend(a:cur_text, ',\s*')
+    endif
     let parp = matchend(a:cur_text, '(')
     return parp > 0 ? parp :
           \ matchend(a:cur_text, '^import\s\+\(qualified\s\+\)\?')
