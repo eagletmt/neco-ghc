@@ -38,6 +38,12 @@ function! s:source.get_keyword_pos(cur_text)  "{{{
     return -1
   endif
 
+  if a:cur_text =~# '^\s\+,'
+    let mod = s:danglingImport(getpos('.')[1])
+    if mod != ''
+      return matchend(a:cur_text, '^\s\+,')
+    endif
+  endif
   if a:cur_text =~# '^import\>'
     if a:cur_text =~# '(.*,'
       return s:last_matchend(a:cur_text, ',\s*')
@@ -56,7 +62,17 @@ endfunction "}}}
 function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
   let l:line = getline('.')
+  echo l:line
 
+  if l:line =~# '^\s\+,'
+    let l:mod = s:danglingImport(getpos('.')[1])
+    if l:mod != ''
+      for l:func in s:ghc_mod_browse(l:mod)
+        call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
+      endfor
+      return neocomplcache#keyword_filter(l:list, a:cur_keyword_str)
+    endif
+  endif
   if l:line =~# '^import\>.*('
     let l:mod = matchlist(l:line, 'import\s\+\(qualified\s\+\)\?\([^ (]\+\)')[2]
     for l:func in s:ghc_mod_browse(l:mod)
@@ -220,6 +236,20 @@ function! s:last_matchend(str, pat) "{{{
   endwhile
   return l:ret
 endfunction "}}}
+
+function! s:danglingImport(n)
+  if a:n < 1
+    return 0
+  endif
+  let line = getline(a:n)
+  if line =~# '^import\>'
+    return matchlist(l:line, 'import\s\+\(qualified\s\+\)\?\([^ (]\+\)')[2]
+  elseif line =~# '^\s\+'
+    return s:danglingImport(a:n-1)
+  else
+    return 0
+  endif
+endfunction
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
 
