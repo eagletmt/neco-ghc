@@ -38,11 +38,9 @@ function! s:source.get_keyword_pos(cur_text)  "{{{
     return -1
   endif
 
-  if a:cur_text =~# '^\s\+,'
-    let mod = s:danglingImport(getpos('.')[1])
-    if mod != ''
-      return matchend(a:cur_text, '^\s\+,')
-    endif
+  let [nothing, just_pos] = s:multilineImport(a:cur_text, 'pos')
+  if !nothing
+    return just_pos
   endif
   if a:cur_text =~# '^import\>'
     if a:cur_text =~# '(.*,'
@@ -62,17 +60,12 @@ endfunction "}}}
 function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
   let l:line = getline('.')
-  echo l:line
 
-  if l:line =~# '^\s\+,'
-    let l:mod = s:danglingImport(getpos('.')[1])
-    if l:mod != ''
-      for l:func in s:ghc_mod_browse(l:mod)
-        call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
-      endfor
-      return neocomplcache#keyword_filter(l:list, a:cur_keyword_str)
-    endif
+  let [nothing, just_list] = s:multilineImport(l:line, 'list')
+  if !nothing
+    return neocomplcache#keyword_filter(just_list, a:cur_keyword_str)
   endif
+
   if l:line =~# '^import\>.*('
     let l:mod = matchlist(l:line, 'import\s\+\(qualified\s\+\)\?\([^ (]\+\)')[2]
     for l:func in s:ghc_mod_browse(l:mod)
@@ -133,6 +126,28 @@ endfunction "}}}
 function! neocomplcache#sources#ghc_complete#define() "{{{
   return executable('ghc-mod') ? s:source : {}
 endfunction "}}}
+
+" like the following case:
+"   import Data.List (all
+"                    ,
+" returns Maybe pos
+function! s:multilineImport(cur_text, type)
+  if a:cur_text =~# '^\s\+,'
+    let mod = s:danglingImport(getpos('.')[1])
+    if mod != ''
+      if a:type == 'pos'
+        return [0, matchend(a:cur_text, '^\s\+,')]
+      else " 'list'
+        let l:list = []
+        for l:func in s:ghc_mod_browse(l:mod)
+          call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
+        endfor
+        return [0, l:list]
+      endif
+    endif
+  endif
+  return [1, 0]
+endfunction
 
 function! s:ghc_mod_browse(mod) "{{{
   if !has_key(s:browse_cache, a:mod)
