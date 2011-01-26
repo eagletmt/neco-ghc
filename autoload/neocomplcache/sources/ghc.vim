@@ -3,7 +3,7 @@
 " This plugin requires ghc-mod <http://www.mew.org/~kazu/proj/ghc-mod/>
 
 let s:source = {
-      \ 'name' : 'ghc_complete',
+      \ 'name' : 'ghc',
       \ 'kind' : 'ftplugin',
       \ 'filetypes': { 'haskell': 1 },
       \ }
@@ -123,7 +123,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   return neocomplcache#keyword_filter(l:list, a:cur_keyword_str)
 endfunction "}}}
 
-function! neocomplcache#sources#ghc_complete#define() "{{{
+function! neocomplcache#sources#ghc#define() "{{{
   return executable('ghc-mod') ? s:source : {}
 endfunction "}}}
 
