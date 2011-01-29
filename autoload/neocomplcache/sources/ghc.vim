@@ -124,6 +124,12 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 endfunction "}}}
 
 function! neocomplcache#sources#ghc#define() "{{{
+  let l:version = s:ghc_mod_version()
+  if l:version < '0.5.2'
+    call neocomplcache#print_warning("neco-ghc requires ghc-mod 0.5.2+")
+    call neocomplcache#print_warning("detected version: " . l:version)
+    return {}
+  endif
   return executable('ghc-mod') ? s:source : {}
 endfunction "}}}
 
@@ -157,7 +163,7 @@ function! s:ghc_mod_browse(mod) "{{{
 endfunction "}}}
 
 function! s:ghc_mod_caching_browse(mod) "{{{
-  let s:browse_cache[a:mod] = s:ghc_mod('browse ' . a:mod)
+  let s:browse_cache[a:mod] = s:ghc_mod('browse -o ' . a:mod)
 endfunction "}}}
 
 function! s:ghc_mod_caching_list()  "{{{
@@ -264,6 +270,11 @@ function! s:danglingImport(n)
   else
     return 0
   endif
+endfunction
+
+function! s:ghc_mod_version()
+  call vimproc#system('ghc-mod')
+  return matchlist(vimproc#get_last_errmsg(), 'ghc-mod version \(.....\)')[1]
 endfunction
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
