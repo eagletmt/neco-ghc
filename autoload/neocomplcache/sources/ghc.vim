@@ -125,8 +125,8 @@ endfunction "}}}
 
 function! neocomplcache#sources#ghc#define() "{{{
   let l:version = s:ghc_mod_version()
-  if l:version < '0.5.2'
-    call neocomplcache#print_warning("neco-ghc requires ghc-mod 0.5.2+")
+  if l:version < '0.5.3'
+    call neocomplcache#print_warning("neco-ghc requires ghc-mod 0.5.3+")
     call neocomplcache#print_warning("detected version: " . l:version)
     return {}
   endif
@@ -278,4 +278,3 @@ function! s:ghc_mod_version()
 endfunction
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
-
