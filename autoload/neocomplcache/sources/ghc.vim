@@ -124,13 +124,16 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 endfunction "}}}
 
 function! neocomplcache#sources#ghc#define() "{{{
+  if !executable('ghc-mod')
+    return {}
+  endif
   let l:version = s:ghc_mod_version()
   if l:version < '0.5.3'
     call neocomplcache#print_warning("neco-ghc requires ghc-mod 0.5.3+")
     call neocomplcache#print_warning("detected version: " . l:version)
     return {}
   endif
-  return executable('ghc-mod') ? s:source : {}
+  return s:source
 endfunction "}}}
 
 " like the following case:
