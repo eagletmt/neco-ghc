@@ -32,7 +32,7 @@ $PATH variable in vim contains the path to your .cabal/bin folder.
 
 if not, add in your .vimrc:
 
-let $PATH=$PATH."/Users/<username>/.cabal/bin"
+`let $PATH=$PATH."/Users/<username>/.cabal/bin"`
 
 
 
