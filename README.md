@@ -24,3 +24,16 @@ neco-ghc was originally implemented by @eagletmt on July 25, 2010, and then ujih
 * install the latest neocomplcache.vim
 * install ghc-mod package by `cabal install ghc-mod`
 * Unarchive neco-ghc and put it into a dir of your &rtp.
+
+## Troubleshoot
+
+If for some reason the neco-ghc plugin is not being added to neocomplcache, check that the 
+$PATH variable in vim contains the path to your .cabal/bin folder. 
+
+if not, add in your .vimrc:
+
+`let $PATH=$PATH."/Users/<username>/.cabal/bin"`
+
+
+
+
