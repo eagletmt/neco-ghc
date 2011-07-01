@@ -79,7 +79,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     return []
   endif
 
-  let l:syn = neocomplcache#get_syn_name(0)
+  let l:syn = s:synname()
   if l:line =~# '^import\s'
     for l:mod in s:list_cache
       call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
@@ -237,7 +237,7 @@ function! s:extract_modules() "{{{
       let l:in_module = 1
     else
       let l:end = matchend(l:str, '^\s*')
-      let l:syn = synIDattr(synID(l:line, l:end+1, 0), 'name')
+      let l:syn = s:synname(l:line, l:end+1)
       if l:syn !~# 'Pragma' && l:syn !~# 'Comment'
         break
       endif
@@ -278,6 +278,17 @@ endfunction
 function! s:ghc_mod_version()
   call vimproc#system('ghc-mod')
   return matchlist(vimproc#get_last_errmsg(), 'ghc-mod version \(.....\)')[1]
+endfunction
+
+function! s:synname(...)
+  if a:0 == 2
+    let l:line = a:000[0]
+    let l:col = a:000[1]
+  else
+    let l:line = line('.')
+    let l:col = col('.') - (mode() ==# 'i' ? 1 : 0)
+  endif
+  return synIDattr(synID(l:line, l:col, 0), 'name')
 endfunction
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
