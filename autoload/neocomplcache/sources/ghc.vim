@@ -38,7 +38,7 @@ function! s:source.get_keyword_pos(cur_text)  "{{{
     return -1
   endif
 
-  let [nothing, just_pos] = s:multilineImport(a:cur_text, 'pos')
+  let [nothing, just_pos] = s:multiline_import(a:cur_text, 'pos')
   if !nothing
     return just_pos
   endif
@@ -61,7 +61,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
   let l:line = getline('.')
 
-  let [nothing, just_list] = s:multilineImport(l:line, 'list')
+  let [nothing, just_list] = s:multiline_import(l:line, 'list')
   if !nothing
     return neocomplcache#keyword_filter(just_list, a:cur_keyword_str)
   endif
@@ -140,9 +140,9 @@ endfunction "}}}
 "   import Data.List (all
 "                    ,
 " returns Maybe pos
-function! s:multilineImport(cur_text, type)
+function! s:multiline_import(cur_text, type)
   if a:cur_text =~# '^\s\+,'
-    let mod = s:danglingImport(getpos('.')[1])
+    let mod = s:dangling_import(getpos('.')[1])
     if mod != ''
       if a:type == 'pos'
         return [0, matchend(a:cur_text, '^\s\+,')]
@@ -261,7 +261,7 @@ function! s:last_matchend(str, pat) "{{{
   return l:ret
 endfunction "}}}
 
-function! s:danglingImport(n)
+function! s:dangling_import(n)
   if a:n < 1
     return 0
   endif
@@ -269,7 +269,7 @@ function! s:danglingImport(n)
   if line =~# '^import\>'
     return matchlist(l:line, 'import\s\+\(qualified\s\+\)\?\([^ (]\+\)')[2]
   elseif line =~# '^\s\+'
-    return s:danglingImport(a:n-1)
+    return s:dangling_import(a:n-1)
   else
     return 0
   endif
