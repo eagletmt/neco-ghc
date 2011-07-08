@@ -26,11 +26,13 @@ function! s:source.initialize() "{{{
     autocmd InsertLeave * if has_key(s:modules_cache, bufnr('%')) | call s:caching_modules() | endif
   augroup END
 
-  command! -nargs=0 NeoComplCacheCachingGhcImports call s:caching_modules()
+  command! -nargs=0 NeoComplCacheCachingGhcImports call neocomplcache#print_warning('This command is deprecated. Use NeoComplCacheCachingGhc instead.') | call s:caching_modules()
+  command! -nargs=0 NeoComplCacheCachingGhc call s:caching_modules()
 endfunction "}}}
 
 function! s:source.finalize() "{{{
   delcommand NeoComplCacheCachingGhcImports
+  delcommand NeoComplCacheCachingGhc
 endfunction "}}}
 
 function! s:source.get_keyword_pos(cur_text)  "{{{

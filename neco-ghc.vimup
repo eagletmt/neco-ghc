@@ -21,6 +21,11 @@
   * install ghc-mod package by `cabal install ghc-mod`
   * Unarchive neco-ghc and put it into a dir of your &rtp.
 "versions":
+  - '1.2': |
+    - Follows changes in neocomplcache core
+    - NeoComplCacheCachingGhcImports command is deprecated
+    - Introducing NeoComplCacheCachingGhc (for consistency with other
+      neocomplcache plugins)
   - '1.1': Supports operator completion in import statement, using ghc-mod 0.5.3
   - '1.0': Initial release in vim.org
 # vim: filetype=yaml
