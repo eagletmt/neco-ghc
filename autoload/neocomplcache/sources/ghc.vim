@@ -214,12 +214,12 @@ function! s:extract_modules() "{{{
         let l:qualified = 0
       endif
 
-      let l:name = matchstr(l:str, '^[A-Za-z.]\+', l:idx)
+      let l:name = matchstr(l:str, '^[A-Za-z][A-Za-z0-9.]*', l:idx)
       if !has_key(l:modules, l:name)
         let l:modules[l:name] = { 'qualified': 0, 'export': 0 }
       endif
       let l:modules[l:name].qualified = l:modules[l:name].qualified || l:qualified
-      let l:idx = matchend(l:str, '^[A-Za-z.]\+\s*', l:idx)
+      let l:idx = matchend(l:str, '^[A-Za-z][A-Za-z0-9.]*\s*', l:idx)
 
       " as
       let l:end = matchend(l:str, '^as\s\+', l:idx)
