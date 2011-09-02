@@ -5,7 +5,7 @@
 let s:source = {
       \ 'name' : 'ghc',
       \ 'kind' : 'ftplugin',
-      \ 'filetypes': { 'haskell': 1 },
+      \ 'filetypes': { 'haskell': 1, 'lhaskell': 1 },
       \ }
 
 " http://www.haskell.org/ghc/docs/latest/html/users_guide/pragmas.html
@@ -22,7 +22,7 @@ function! s:source.initialize() "{{{
   call s:ghc_mod_caching_browse('Prelude')
 
   augroup neocomplcache
-    autocmd FileType haskell call s:caching_modules()
+    autocmd FileType haskell,lhaskell call s:caching_modules()
     autocmd InsertLeave * if has_key(s:modules_cache, bufnr('%')) | call s:caching_modules() | endif
   augroup END
 
@@ -39,29 +39,45 @@ function! s:source.get_keyword_pos(cur_text)  "{{{
   if neocomplcache#within_comment()
     return -1
   endif
-
-  let [nothing, just_pos] = s:multiline_import(a:cur_text, 'pos')
-  if !nothing
-    return just_pos
+  if &l:filetype == 'lhaskell' && a:cur_text !~# '^>'
+    return -1
   endif
-  if a:cur_text =~# '^import\>'
-    if a:cur_text =~# '(.*,'
-      return s:last_matchend(a:cur_text, ',\s*')
+  if &l:filetype == 'haskell'
+    let l:offset = 0
+    let l:cur_text = a:cur_text
+  elseif &l:filetype == 'lhaskell'
+    let l:offset = matchend(a:cur_text, '^>\s*')
+    let l:cur_text = a:cur_text[l:offset :]
+  endif
+
+  let [nothing, just_pos] = s:multiline_import(l:cur_text, 'pos')
+  if !nothing
+    return l:offset + just_pos
+  endif
+
+  if l:cur_text =~# '^import\>'
+    if l:cur_text =~# '(.*,'
+      return l:offset + s:last_matchend(l:cur_text, ',\s*')
     endif
-    let parp = matchend(a:cur_text, '(')
-    return parp > 0 ? parp :
-          \ matchend(a:cur_text, '^import\s\+\(qualified\s\+\)\?')
+    let parp = matchend(l:cur_text, '(')
+    return l:offset + (parp > 0 ? parp :
+          \ matchend(l:cur_text, '\<import\s\+\(qualified\s\+\)\?'))
   else
     " let l:pattern = neocomplcache#get_keyword_pattern_end('haskell')
     let l:pattern = "\\%([[:alpha:]_'][[:alnum:]_'.]*\\m\\)$"
-    let [l:cur_keyword_pos, l:cur_keyword_str] = neocomplcache#match_word(a:cur_text, l:pattern)
-    return l:cur_keyword_pos
+    let [l:cur_keyword_pos, l:cur_keyword_str] = neocomplcache#match_word(l:cur_text, l:pattern)
+    return l:offset + l:cur_keyword_pos
   endif
 endfunction "}}}
 
 function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
   let l:line = getline('.')
+  let l:offset = 0
+  if &l:filetype == 'lhaskell'
+    let l:offset = matchend(l:line, '^>\s*')
+    let l:line = l:line[l:offset :]
+  endif
 
   let [nothing, just_list] = s:multiline_import(l:line, 'list')
   if !nothing
@@ -87,7 +103,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
       call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
     endfor
   elseif l:syn =~# 'Pragma'
-    if match(l:line, '{-#\s\+\zs\w*') == a:cur_keyword_pos
+    if l:offset + match(l:line, '{-#\s\+\zs\w*') == a:cur_keyword_pos
       for l:p in s:pragmas
         call add(l:list, { 'word': l:p, 'menu': '[ghc] ' . l:p })
       endfor
@@ -202,9 +218,19 @@ function! s:extract_modules() "{{{
   let l:line = 1
   while l:line < line('.')
     let l:str = getline(l:line)
-    if l:str =~# '^import\s\+'
-      let l:idx = matchend(l:str, '^import\s\+')
+    if &l:filetype == 'haskell'
+      let l:end = matchend(l:str, '^\s*')
+    elseif &l:filetype == 'lhaskell'
+      if l:str !~# '^>'
+        " skip
+        let l:line += 1
+        continue
+      endif
+      let l:end = matchend(l:str, '^>\s*')
+    endif
 
+    let l:idx = matchend(l:str, '^import\s\+', l:end)
+    if l:idx != -1
       " qualified
       let l:end = matchend(l:str, '^qualified\s\+', l:idx)
       if l:end != -1
@@ -215,6 +241,7 @@ function! s:extract_modules() "{{{
       endif
 
       let l:name = matchstr(l:str, '^[A-Za-z][A-Za-z0-9.]*', l:idx)
+
       if !has_key(l:modules, l:name)
         let l:modules[l:name] = { 'qualified': 0, 'export': 0 }
       endif
@@ -233,12 +260,11 @@ function! s:extract_modules() "{{{
         let l:modules[l:name].export = 1
       endif
 
-    elseif l:in_module || l:str =~# '^\s*$'
+    elseif l:in_module || match(l:str, '^\s*$', l:end) != -1
       " skip
-    elseif l:str =~# '^module\s'
+    elseif match(l:str, '^module\s', l:end) != -1
       let l:in_module = 1
     else
-      let l:end = matchend(l:str, '^\s*')
       let l:syn = s:synname(l:line, l:end+1)
       if l:syn !~# 'Pragma' && l:syn !~# 'Comment'
         break
