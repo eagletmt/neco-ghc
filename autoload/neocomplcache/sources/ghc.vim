@@ -39,14 +39,14 @@ function! s:source.get_keyword_pos(cur_text)  "{{{
   if neocomplcache#within_comment()
     return -1
   endif
-  if &l:filetype == 'lhaskell' && a:cur_text !~# '^>'
+  if &l:filetype == 'lhaskell' && !s:lhaskell_code()
     return -1
   endif
   if &l:filetype == 'haskell'
     let l:offset = 0
     let l:cur_text = a:cur_text
   elseif &l:filetype == 'lhaskell'
-    let l:offset = matchend(a:cur_text, '^>\s*')
+    let l:offset = max([0, matchend(a:cur_text, '^>\s*')])
     let l:cur_text = a:cur_text[l:offset :]
   endif
 
@@ -75,7 +75,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:line = getline('.')
   let l:offset = 0
   if &l:filetype == 'lhaskell'
-    let l:offset = matchend(l:line, '^>\s*')
+    let l:offset = max([0, matchend(l:line, '^>\s*')])
     let l:line = l:line[l:offset :]
   endif
 
@@ -221,7 +221,7 @@ function! s:extract_modules() "{{{
     if &l:filetype == 'haskell'
       let l:end = matchend(l:str, '^\s*')
     elseif &l:filetype == 'lhaskell'
-      if l:str !~# '^>'
+      if !s:lhaskell_code(l:line, 1)
         " skip
         let l:line += 1
         continue
@@ -308,7 +308,11 @@ function! s:ghc_mod_version()
   return matchlist(vimproc#get_last_errmsg(), 'ghc-mod version \(.....\)')[1]
 endfunction
 
-function! s:synname(...)
+function! s:synname(...)"{{{
+  return get(call('s:synstack', a:000), -1, '')
+endfunction"}}}
+
+function! s:synstack(...)"{{{
   if a:0 == 2
     let l:line = a:000[0]
     let l:col = a:000[1]
@@ -316,7 +320,15 @@ function! s:synname(...)
     let l:line = line('.')
     let l:col = col('.') - (mode() ==# 'i' ? 1 : 0)
   endif
-  return synIDattr(synID(l:line, l:col, 0), 'name')
-endfunction
+  let l:stack = synstack(l:line, l:col)
+  call map(l:stack, 'synIDattr(v:val, "name")')
+  return l:stack
+endfunction"}}}
+
+function! s:lhaskell_code(...)"{{{
+  let l:synstack = call('s:synstack', a:000)
+  return index(l:synstack, 'lhsHaskellBirdTrack') != -1
+        \ || index(l:synstack, 'lhsHaskellBeginEndBlock') != -1
+endfunction"}}}
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
