@@ -279,7 +279,7 @@ endfunction
 
 function! s:ghc_mod_version()
   let l:ret = neocomplcache#system('ghc-mod')
-  return matchlist(ret, 'ghc-mod version \(.....\)')[1]
+  return get(matchlist(ret, 'ghc-mod version \(.....\)'), 1)
 endfunction
 
 function! s:synname(...)
