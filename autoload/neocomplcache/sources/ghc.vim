@@ -278,8 +278,8 @@ function! s:dangling_import(n)
 endfunction
 
 function! s:ghc_mod_version()
-  call vimproc#system('ghc-mod')
-  return matchlist(vimproc#get_last_errmsg(), 'ghc-mod version \(.....\)')[1]
+  let l:ret = neocomplcache#system('ghc-mod')
+  return matchlist(ret, 'ghc-mod version \(.....\)')[1]
 endfunction
 
 function! s:synname(...)
