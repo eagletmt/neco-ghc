@@ -143,11 +143,11 @@ endfunction "}}}
 "                    ,
 " returns Maybe pos
 function! s:multiline_import(cur_text, type)
-  if a:cur_text =~# '^\s\+,'
+  if a:cur_text =~# '^\s\+[,(]'
     let mod = s:dangling_import(getpos('.')[1])
     if mod != ''
       if a:type == 'pos'
-        return [0, matchend(a:cur_text, '^\s\+,')]
+        return [0, matchend(a:cur_text, '^\s\+[,(]\s*')]
       else " 'list'
         let l:list = []
         for l:func in s:ghc_mod_browse(l:mod)
