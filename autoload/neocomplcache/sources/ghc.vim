@@ -19,6 +19,7 @@ function! s:source.initialize() "{{{
   let s:modules_cache = {}
   call s:ghc_mod_caching_list()
   call s:ghc_mod_caching_lang()
+  call s:ghc_mod_caching_flag()
   call s:ghc_mod_caching_browse('Prelude')
 
   augroup neocomplcache
@@ -52,8 +53,11 @@ function! s:source.get_keyword_pos(cur_text)  "{{{
     return parp > 0 ? parp :
           \ matchend(a:cur_text, '^import\s\+\(qualified\s\+\)\?')
   else
-    " let l:pattern = neocomplcache#get_keyword_pattern_end('haskell')
-    let l:pattern = "\\%([[:alpha:]_'][[:alnum:]_'.]*\\m\\)$"
+    if s:synname() =~# 'Pragma' && a:cur_text =~# 'OPTIONS_GHC'
+      let l:pattern = '-[[:alnum:]-]*$'
+    else
+      let l:pattern = "\\%([[:alpha:]_'][[:alnum:]_'.]*\\m\\)$"
+    endif
     let [l:cur_keyword_pos, l:cur_keyword_str] = neocomplcache#match_word(a:cur_text, l:pattern)
     return l:cur_keyword_pos
   endif
@@ -96,6 +100,10 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
         call add(l:list, { 'word': l:lang, 'menu': '[ghc] ' . l:lang })
         call add(l:list, { 'word': 'No' . l:lang, 'menu': '[ghc] No' . l:lang })
       endfor
+    elseif l:line =~# 'OPTIONS_GHC'
+      for l:flag in s:flag_cache
+        call add(l:list, { 'word': l:flag, 'menu': '[ghc] ' . l:flag })
+      endfor
     endif
   elseif a:cur_keyword_str =~# '\.'
     " qualified
@@ -135,6 +143,7 @@ function! neocomplcache#sources#ghc#define() "{{{
     call neocomplcache#print_warning("detected version: " . l:version)
     return {}
   endif
+  let s:enable_flag_complete = l:version >= '1.0.7'
   return s:source
 endfunction "}}}
 
@@ -177,6 +186,10 @@ endfunction "}}}
 
 function! s:ghc_mod_caching_lang()  "{{{
   let s:lang_cache = s:ghc_mod('lang')
+endfunction "}}}
+
+function! s:ghc_mod_caching_flag()  "{{{
+  let s:flag_cache = s:enable_flag_complete ? s:ghc_mod('flag') : []
 endfunction "}}}
 
 function! s:caching_modules() "{{{
