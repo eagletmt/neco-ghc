@@ -138,12 +138,11 @@ function! neocomplcache#sources#ghc#define() "{{{
     return {}
   endif
   let l:version = s:ghc_mod_version()
-  if l:version < '0.5.3'
-    call neocomplcache#print_warning("neco-ghc requires ghc-mod 0.5.3+")
+  if l:version < '1.0.8'
+    call neocomplcache#print_warning("neco-ghc requires ghc-mod 1.0.8+")
     call neocomplcache#print_warning("detected version: " . l:version)
     return {}
   endif
-  let s:enable_flag_complete = l:version >= '1.0.7'
   return s:source
 endfunction "}}}
 
@@ -189,7 +188,7 @@ function! s:ghc_mod_caching_lang()  "{{{
 endfunction "}}}
 
 function! s:ghc_mod_caching_flag()  "{{{
-  let s:flag_cache = s:enable_flag_complete ? s:ghc_mod('flag') : []
+  let s:flag_cache = s:ghc_mod('flag')
 endfunction "}}}
 
 function! s:caching_modules() "{{{
