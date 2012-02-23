@@ -33,7 +33,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str)
     return []
   endif
 
-  return necoghc#get_complete_words(a:cur_keyword_str)
+  return necoghc#get_complete_words(a:cur_keyword_pos, a:cur_keyword_str)
 endfunction
 
 function! neocomplcache#sources#ghc#define()

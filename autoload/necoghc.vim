@@ -14,7 +14,7 @@ function! necoghc#omnifunc(findstart, base)"{{{
       return []
     else
       call necoghc#caching_modules()
-      return necoghc#get_complete_words(a:base)
+      return necoghc#get_complete_words(col('.')-1, a:base)
     endif
   endif
 endfunction"}}}
@@ -50,10 +50,9 @@ function! s:word_prefix(dict, keyword)"{{{
   return strpart(a:dict.word, 0, l:len) ==# a:keyword
 endfunction"}}}
 
-function! necoghc#get_complete_words(cur_keyword_str) "{{{
+function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
   let l:line = getline('.')
-  let l:cur_keyword_pos = col('.') - len(a:cur_keyword_str)
 
   let [nothing, just_list] = s:multiline_import(l:line, 'list')
   if !nothing
@@ -74,7 +73,7 @@ function! necoghc#get_complete_words(cur_keyword_str) "{{{
       call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
     endfor
   elseif l:syn =~# 'Pragma'
-    if match(l:line, '{-#\s\+\zs\w*') == l:cur_keyword_pos
+    if match(l:line, '{-#\s\+\zs\w*') == a:cur_keyword_pos
       for l:p in s:pragmas
         call add(l:list, { 'word': l:p, 'menu': '[ghc] ' . l:p })
       endfor
