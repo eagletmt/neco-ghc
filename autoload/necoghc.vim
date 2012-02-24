@@ -4,7 +4,15 @@ let s:pragmas = [
       \ 'NOINLINE', 'ANN', 'LINE', 'RULES', 'SPECIALIZE', 'UNPACK', 'SOURCE',
       \ ]
 
-let s:browse_cache = {}
+function! necoghc#boot()"{{{
+  if !exists('s:browse_cache')
+    let s:list_cache = s:ghc_mod('list')
+    let s:lang_cache = s:ghc_mod('lang')
+    let s:flag_cache = s:ghc_mod('flag')
+    let s:browse_cache = {}
+    call s:ghc_mod_caching_browse('Prelude')
+  endif
+endfunction"}}}
 
 function! necoghc#omnifunc(findstart, base)"{{{
   if a:findstart
@@ -18,6 +26,7 @@ function! necoghc#omnifunc(findstart, base)"{{{
     if empty(a:base)
       return []
     else
+      call necoghc#boot()
       call necoghc#caching_modules()
       return necoghc#get_complete_words(col('.')-1, a:base)
     endif
@@ -153,18 +162,6 @@ function! s:ghc_mod_caching_browse(mod) "{{{
   let s:browse_cache[a:mod] = s:ghc_mod('browse -o ' . a:mod)
 endfunction "}}}
 
-function! s:ghc_mod_caching_list()  "{{{
-  let s:list_cache = s:ghc_mod('list')
-endfunction "}}}
-
-function! s:ghc_mod_caching_lang()  "{{{
-  let s:lang_cache = s:ghc_mod('lang')
-endfunction "}}}
-
-function! s:ghc_mod_caching_flag()  "{{{
-  let s:flag_cache = s:ghc_mod('flag')
-endfunction "}}}
-
 function! necoghc#caching_modules() "{{{
   let b:necoghc_modules_cache = s:extract_modules()
 endfunction "}}}
@@ -276,10 +273,5 @@ function! s:synname(...)"{{{
   endif
   return synIDattr(synID(l:line, l:col, 0), 'name')
 endfunction"}}}
-
-call s:ghc_mod_caching_list()
-call s:ghc_mod_caching_lang()
-call s:ghc_mod_caching_flag()
-call s:ghc_mod_caching_browse('Prelude')
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker

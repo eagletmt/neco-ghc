@@ -5,6 +5,8 @@ let s:source = {
       \ }
 
 function! s:source.initialize()
+  call necoghc#boot()
+
   augroup neocomplcache
     autocmd FileType haskell call necoghc#caching_modules()
     autocmd InsertLeave * if exists('b:necoghc_modules_cache') | call necoghc#caching_modules() | endif
