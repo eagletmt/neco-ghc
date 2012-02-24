@@ -1,10 +1,10 @@
 # neocomplcache-ghc (neco-ghc)
 
-A neocomplcache plugin for Haskell, using ghc extensions
+A completion plugin for Haskell, using ghc-mod
 
-## what is neco-ghc
+## What is neco-ghc
 
-This plugin supports the following completion on the auto completion framework neocomplcache.
+This plugin supports the following completion.
 
 * pragma
     ![](http://cache.gyazo.com/c922e323be7dbed9aa70b2bac62be45e.png)
@@ -19,21 +19,27 @@ This plugin supports the following completion on the auto completion framework n
 
 neco-ghc was originally implemented by @eagletmt on July 25, 2010, and then ujihisa added some new features.
 
-## install
+## Install
 
-* install the latest neocomplcache.vim
-* install ghc-mod package by `cabal install ghc-mod`
+* Install neocomplcache.vim
+* Install ghc-mod package by `cabal install ghc-mod`
 * Unarchive neco-ghc and put it into a dir of your &rtp.
+
+## Usage
+
+### For neocomplcache users
+You can enjoy auto-completions without any specific configuration.
+
+### For non-neocomplcache users
+neco-ghc provides `necoghc#omnifunc` for omni-completion.
+I suggest adding in your ~/.vim/ftplugin/haskell.vim: `setlocal omnifunc=necoghc#omnifunc`.
+See `:help compl-omni` for details on omni-completion.
 
 ## Troubleshoot
 
-If for some reason the neco-ghc plugin is not being added to neocomplcache, check that the 
-$PATH variable in vim contains the path to your .cabal/bin folder. 
+If for some reason the neco-ghc plugin is not being added to neocomplcache, check that the
+$PATH variable in vim contains the path to your .cabal/bin folder.
 
 if not, add in your .vimrc:
 
 `let $PATH=$PATH."/Users/<username>/.cabal/bin"`
-
-
-
-
