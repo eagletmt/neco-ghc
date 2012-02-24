@@ -8,7 +8,12 @@ let s:browse_cache = {}
 
 function! necoghc#omnifunc(findstart, base)"{{{
   if a:findstart
-    return necoghc#get_keyword_pos(getline('.'))
+    let l:col = col('.')-1
+    if l:col == 0
+      return -1
+    else
+      return necoghc#get_keyword_pos(getline('.')[0 : l:col-1])
+    endif
   else
     if empty(a:base)
       return []
