@@ -21,13 +21,13 @@ neco-ghc was originally implemented by @eagletmt on July 25, 2010, and then ujih
 
 ## Install
 
-* Install neocomplcache.vim
 * Install ghc-mod package by `cabal install ghc-mod`
 * Unarchive neco-ghc and put it into a dir of your &rtp.
 
 ## Usage
 
 ### For neocomplcache users
+This plugin can be used as a source of [neocomplcache](http://www.vim.org/scripts/script.php?script_id=2620).
 You can enjoy auto-completions without any specific configuration.
 
 ### For non-neocomplcache users
