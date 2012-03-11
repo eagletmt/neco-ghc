@@ -174,7 +174,10 @@ function! s:get_modules() "{{{
 endfunction "}}}
 
 function! s:ghc_mod(cmd)  "{{{
-  return split(system('ghc-mod ' . a:cmd), '\n')
+  lcd `=expand('%:p:h')`
+  let l:ret = split(system('ghc-mod ' . a:cmd), '\n')
+  lcd -
+  return l:ret
 endfunction "}}}
 
 function! s:extract_modules() "{{{
