@@ -42,7 +42,7 @@ $PATH variable in vim contains the path to your .cabal/bin folder.
 
 if not, add in your .vimrc:
 
-`let $PATH=$PATH."/Users/<username>/.cabal/bin"`
+`let $PATH = $PATH . ':' . expand("~/.cabal/bin")`
 
 ## License
 [BSD3 License](http://www.opensource.org/licenses/BSD-3-Clause), the same license as ghc-mod.
