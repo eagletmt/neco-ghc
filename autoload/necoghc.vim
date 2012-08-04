@@ -175,9 +175,13 @@ endfunction "}}}
 
 function! s:ghc_mod(cmd)  "{{{
   lcd `=expand('%:p:h')`
-  let l:ret = split(system('ghc-mod ' . a:cmd), '\n')
+  let l:ret = system('ghc-mod ' . a:cmd)
   lcd -
-  return l:ret
+  if l:ret =~# '\s'
+    " some error occurred
+    let l:ret = ''
+  endif
+  return split(l:ret, '\n')
 endfunction "}}}
 
 function! s:extract_modules() "{{{
