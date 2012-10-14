@@ -66,7 +66,7 @@ endfunction"}}}
 
 function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
-  let l:line = getline('.')
+  let l:line = getline('.')[: a:cur_keyword_pos]
 
   let [nothing, just_list] = s:multiline_import(l:line, 'list')
   if !nothing
