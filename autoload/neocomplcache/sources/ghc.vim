@@ -12,8 +12,11 @@ function! s:source.initialize()
     autocmd InsertLeave * if exists('b:necoghc_modules_cache') | call necoghc#caching_modules() | endif
   augroup END
 
-  command! -nargs=0 NeoComplCacheCachingGhcImports call neocomplcache#print_warning('This command is deprecated. Use NeoComplCacheCachingGhc instead.') | call necoghc#caching_modules()
-  command! -nargs=0 NeoComplCacheCachingGhc call necoghc#caching_modules()
+  command! -nargs=0 NeoComplCacheCachingGhcImports
+        \ call neocomplcache#print_warning('This command is deprecated. Use NeoComplCacheCachingGhc instead.')
+        \ | call necoghc#caching_modules()
+  command! -nargs=0 NeoComplCacheCachingGhc
+        \ call necoghc#caching_modules()
 endfunction
 
 function! s:source.finalize()
