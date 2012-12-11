@@ -23,13 +23,9 @@ function! necoghc#omnifunc(findstart, base)"{{{
       return necoghc#get_keyword_pos(getline('.')[0 : l:col-1])
     endif
   else
-    if empty(a:base)
-      return []
-    else
-      call necoghc#boot()
-      call necoghc#caching_modules()
-      return necoghc#get_complete_words(col('.')-1, a:base)
-    endif
+    call necoghc#boot()
+    call necoghc#caching_modules()
+    return necoghc#get_complete_words(col('.')-1, a:base)
   endif
 endfunction"}}}
 
