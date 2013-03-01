@@ -60,6 +60,18 @@ function! s:word_prefix(dict, keyword)"{{{
   return strpart(a:dict.word, 0, l:len) ==# a:keyword
 endfunction"}}}
 
+function! s:to_desc(sym, dict)
+  let l:desc = '[ghc] '
+  if has_key(a:dict, 'kind')
+    let l:desc .= printf('%s %s %s', a:dict.kind, a:sym, a:dict.args)
+  elseif has_key(a:dict, 'type')
+    let l:desc .= printf('%s :: %s', a:sym, a:dict.type)
+  else
+    let l:desc .= a:sym
+  endif
+  return l:desc
+endfunction
+
 function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
   let l:line = getline('.')[: a:cur_keyword_pos]
@@ -71,8 +83,8 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 
   if l:line =~# '^import\>.*('
     let l:mod = matchlist(l:line, 'import\s\+\(qualified\s\+\)\?\([^ (]\+\)')[2]
-    for l:func in s:ghc_mod_browse(l:mod)
-      call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
+    for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
+      call add(l:list, { 'word': l:sym, 'menu': s:to_desc(printf('%s.%s', l:mod, l:sym), l:dict)})
     endfor
     return filter(l:list, 's:word_prefix(v:val, a:cur_keyword_str)')
   endif
@@ -105,18 +117,16 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 
     for [l:mod, l:opts] in items(s:get_modules())
       if l:mod == l:qual || (has_key(l:opts, 'as') && l:opts.as == l:qual)
-        let l:symbols = s:ghc_mod_browse(l:mod)
-        for l:sym in l:symbols
-          call add(l:list, { 'word': printf('%s.%s', l:qual, l:sym), 'menu': printf('[ghc] %s.%s', l:mod, l:sym) })
+        for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
+          call add(l:list, { 'word': printf('%s.%s', l:qual, l:sym), 'menu': s:to_desc(printf('%s.%s', l:mod, l:sym), l:dict) })
         endfor
       endif
     endfor
   else
     for [l:mod, l:opts] in items(s:get_modules())
       if !l:opts.qualified || l:opts.export
-        let l:symbols = s:ghc_mod_browse(l:mod)
-        for l:sym in l:symbols
-          call add(l:list, { 'word': l:sym, 'menu': printf('[ghc] %s.%s', l:mod, l:sym) })
+        for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
+          call add(l:list, { 'word': l:sym, 'menu': s:to_desc(printf('%s.%s', l:mod, l:sym), l:dict) })
         endfor
       endif
     endfor
@@ -137,8 +147,8 @@ function! s:multiline_import(cur_text, type)"{{{
         return [0, matchend(a:cur_text, '^\s\+[,(]\s*')]
       else " 'list'
         let l:list = []
-        for l:func in s:ghc_mod_browse(l:mod)
-          call add(l:list, { 'word': l:func, 'menu': printf('[ghc] %s.%s', l:mod, l:func) })
+        for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
+          call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod '.' l:sym, l:dict) })
         endfor
         return [0, l:list]
       endif
@@ -155,7 +165,29 @@ function! s:ghc_mod_browse(mod) "{{{
 endfunction "}}}
 
 function! s:ghc_mod_caching_browse(mod) "{{{
-  let s:browse_cache[a:mod] = s:ghc_mod('browse -o ' . a:mod)
+  let l:dict = {}
+  let l:cmd = 'browse -o'
+  if get(g:, 'necoghc_enable_detailed_browse')
+    let l:cmd .= ' -d'
+  endif
+  let l:cmd .= ' ' . a:mod
+  for l:line in s:ghc_mod(l:cmd)
+    let l:m = matchlist(l:line, '^\(class\|data\|type\|newtype\) \(\S\+\)\( .\+\)\?$')
+    if !empty(l:m)
+      let l:dict[l:m[2]] = {'kind': l:m[1], 'args': l:m[3][1 :]}
+    else
+      let l:m = matchlist(l:line, '^\(\S\+\) :: \(.\+\)$')
+      if !empty(l:m)
+        let l:dict[l:m[1]] = {'type': l:m[2]}
+      elseif l:line =~# '^\S\+$'
+        let l:dict[l:line] = {}
+      else
+        " Maybe some error occurred.
+        break
+      endif
+    endif
+  endfor
+  let s:browse_cache[a:mod] = l:dict
 endfunction "}}}
 
 function! necoghc#caching_modules() "{{{
@@ -173,10 +205,6 @@ function! s:ghc_mod(cmd)  "{{{
   lcd `=expand('%:p:h')`
   let l:ret = system('ghc-mod -g -package -g ghc ' . a:cmd)
   lcd -
-  if l:ret =~# '\s'
-    " some error occurred
-    let l:ret = ''
-  endif
   return split(l:ret, '\n')
 endfunction "}}}
 

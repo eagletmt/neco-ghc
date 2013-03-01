@@ -42,6 +42,18 @@ omnifunc=necoghc#omnifunc`.
 
 See `:help compl-omni` for details on omni-completion.
 
+## Options
+### `g:necoghc_enable_detailed_browse`
+Default: 0
+
+Show detailed information (type) of symbols.
+You can enable it by adding `let g:necoghc_enable_detailed_browse = 1` in your vimrc.
+While it is quite useful, it would take longer boot time.
+
+This feature was introduced in ghc-mod 1.11.5.
+
+![](http://cache.gyazo.com/f3d2c097475021615581822eee8cb6fd.png)
+
 ## Troubleshoot
 
 If for some reason the neco-ghc plugin is not being added to neocomplcache,
