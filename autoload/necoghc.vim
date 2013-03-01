@@ -171,7 +171,7 @@ endfunction "}}}
 
 function! s:ghc_mod(cmd)  "{{{
   lcd `=expand('%:p:h')`
-  let l:ret = system('ghc-mod ' . a:cmd)
+  let l:ret = system('ghc-mod -g -package -g ghc ' . a:cmd)
   lcd -
   if l:ret =~# '\s'
     " some error occurred
