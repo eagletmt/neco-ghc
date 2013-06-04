@@ -30,7 +30,8 @@ ujihisa added some new features.
 ### For neocomplcache users
 
 This plugin can be used as a source of
-[neocomplcache](http://www.vim.org/scripts/script.php?script_id=2620).
+[neocomplcache](http://www.vim.org/scripts/script.php?script_id=2620) or
+[neocomplete](https://github.com/Shougo/neocomplete.vim).
 You can enjoy auto-completions without any specific configuration.
 
 ### For non-neocomplcache users
