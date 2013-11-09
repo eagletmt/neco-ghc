@@ -4,7 +4,7 @@ let s:pragmas = [
       \ 'NOINLINE', 'ANN', 'LINE', 'RULES', 'SPECIALIZE', 'UNPACK', 'SOURCE',
       \ ]
 
-function! necoghc#boot()"{{{
+function! necoghc#boot() "{{{
   if !exists('s:browse_cache')
     let s:list_cache = s:ghc_mod(['list'])
     let s:lang_cache = s:ghc_mod(['lang'])
@@ -12,9 +12,9 @@ function! necoghc#boot()"{{{
     let s:browse_cache = {}
     call s:ghc_mod_caching_browse('Prelude')
   endif
-endfunction"}}}
+endfunction "}}}
 
-function! necoghc#omnifunc(findstart, base)"{{{
+function! necoghc#omnifunc(findstart, base) "{{{
   if a:findstart
     let l:col = col('.')-1
     if l:col == 0
@@ -27,7 +27,7 @@ function! necoghc#omnifunc(findstart, base)"{{{
     call necoghc#caching_modules()
     return necoghc#get_complete_words(col('.')-1, a:base)
   endif
-endfunction"}}}
+endfunction "}}}
 
 function! necoghc#get_keyword_pos(cur_text)  "{{{
   if s:synname() =~# 'Comment'
@@ -55,10 +55,10 @@ function! necoghc#get_keyword_pos(cur_text)  "{{{
   endif
 endfunction "}}}
 
-function! s:word_prefix(dict, keyword)"{{{
+function! s:word_prefix(dict, keyword) "{{{
   let l:len = strlen(a:keyword)
   return strpart(a:dict.word, 0, l:len) ==# a:keyword
-endfunction"}}}
+endfunction "}}}
 
 function! s:to_desc(sym, dict)
   let l:desc = '[ghc] '
@@ -82,7 +82,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   endif
 
   if l:line =~# '^import\>.*('
-    let l:mod = matchlist(l:line, 'import\s\+\(qualified\s\+\)\?\([^ (]\+\)')[2]
+    let l:mod = matchstr(l:line, '^import\s\+\%(qualified\s\+\)\?\zs[^ (]\+')
     for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
       call add(l:list, { 'word': l:sym, 'menu': s:to_desc(printf('%s.%s', l:mod, l:sym), l:dict)})
     endfor
@@ -139,7 +139,7 @@ endfunction "}}}
 "   import Data.List (all
 "                    ,
 " returns Maybe pos
-function! s:multiline_import(cur_text, type)"{{{
+function! s:multiline_import(cur_text, type) "{{{
   if a:cur_text =~# '^\s\+[,(]'
     let mod = s:dangling_import(getpos('.')[1])
     if mod != ''
@@ -155,7 +155,7 @@ function! s:multiline_import(cur_text, type)"{{{
     endif
   endif
   return [1, 0]
-endfunction"}}}
+endfunction "}}}
 
 function! s:ghc_mod_browse(mod) "{{{
   if !has_key(s:browse_cache, a:mod)
@@ -201,7 +201,7 @@ function! s:get_modules() "{{{
   return b:necoghc_modules_cache
 endfunction "}}}
 
-function! s:ghc_mod(cmd)  "{{{
+function! s:ghc_mod(cmd) "{{{
   lcd `=expand('%:p:h')`
   let l:ret = s:system(['ghc-mod', '-g', '-package', '-g', 'ghc'] + a:cmd)
   lcd -
@@ -276,26 +276,27 @@ function! s:last_matchend(str, pat) "{{{
   return l:ret
 endfunction "}}}
 
-function! s:dangling_import(n)"{{{
-  if a:n < 1
-    return 0
-  endif
-  let line = getline(a:n)
-  if line =~# '^import\>'
-    return matchlist(l:line, 'import\s\+\(qualified\s\+\)\?\([^ (]\+\)')[2]
-  elseif line =~# '^\s\+'
-    return s:dangling_import(a:n-1)
-  else
-    return 0
-  endif
-endfunction"}}}
+function! s:dangling_import(n) "{{{
+  let i = a:n
+  while i >= 1
+    let line = getline(i)
+    if line =~# '^import\>'
+      return matchstr(l:line, '^import\s\+\%(qualified\s\+\)\?\zs[^ (]\+')
+    elseif line =~# '^\(\s\|--\)'
+      let i -=1
+    else
+      break
+    endif
+  endwhile
+  return 0
+endfunction "}}}
 
-function! necoghc#ghc_mod_version()"{{{
+function! necoghc#ghc_mod_version() "{{{
   let l:ret = s:system(['ghc-mod'])
-  return get(matchlist(ret, 'ghc-mod version \(.....\)'), 1)
-endfunction"}}}
+  return matchstr(ret, 'ghc-mod version \zs.\{5}')
+endfunction "}}}
 
-function! s:synname(...)"{{{
+function! s:synname(...) "{{{
   if a:0 == 2
     let l:line = a:000[0]
     let l:col = a:000[1]
@@ -304,7 +305,7 @@ function! s:synname(...)"{{{
     let l:col = col('.') - (mode() ==# 'i' ? 1 : 0)
   endif
   return synIDattr(synID(l:line, l:col, 0), 'name')
-endfunction"}}}
+endfunction "}}}
 
 function! s:system(list) "{{{
   if !exists('s:exists_vimproc')
