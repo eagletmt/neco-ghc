@@ -6,9 +6,9 @@ let s:pragmas = [
 
 function! necoghc#boot()"{{{
   if !exists('s:browse_cache')
-    let s:list_cache = s:ghc_mod('list')
-    let s:lang_cache = s:ghc_mod('lang')
-    let s:flag_cache = s:ghc_mod('flag')
+    let s:list_cache = s:ghc_mod(['list'])
+    let s:lang_cache = s:ghc_mod(['lang'])
+    let s:flag_cache = s:ghc_mod(['flag'])
     let s:browse_cache = {}
     call s:ghc_mod_caching_browse('Prelude')
   endif
@@ -166,11 +166,11 @@ endfunction "}}}
 
 function! s:ghc_mod_caching_browse(mod) "{{{
   let l:dict = {}
-  let l:cmd = 'browse -o'
+  let l:cmd = ['browse', '-o']
   if get(g:, 'necoghc_enable_detailed_browse')
-    let l:cmd .= ' -d'
+    let l:cmd += ['-d']
   endif
-  let l:cmd .= ' ' . a:mod
+  let l:cmd += [a:mod]
   for l:line in s:ghc_mod(l:cmd)
     let l:m = matchlist(l:line, '^\(class\|data\|type\|newtype\) \(\S\+\)\( .\+\)\?$')
     if !empty(l:m)
@@ -203,7 +203,7 @@ endfunction "}}}
 
 function! s:ghc_mod(cmd)  "{{{
   lcd `=expand('%:p:h')`
-  let l:ret = system('ghc-mod -g -package -g ghc ' . a:cmd)
+  let l:ret = s:system(['ghc-mod', '-g', '-package', '-g', 'ghc'] + a:cmd)
   lcd -
   return split(l:ret, '\n')
 endfunction "}}}
@@ -291,7 +291,7 @@ function! s:dangling_import(n)"{{{
 endfunction"}}}
 
 function! necoghc#ghc_mod_version()"{{{
-  let l:ret = system('ghc-mod')
+  let l:ret = s:system(['ghc-mod'])
   return get(matchlist(ret, 'ghc-mod version \(.....\)'), 1)
 endfunction"}}}
 
@@ -305,5 +305,17 @@ function! s:synname(...)"{{{
   endif
   return synIDattr(synID(l:line, l:col, 0), 'name')
 endfunction"}}}
+
+function! s:system(list) "{{{
+  if !exists('s:exists_vimproc')
+    try
+      call vimproc#version()
+      let s:exists_vimproc = 1
+    catch
+      let s:exists_vimproc = 0
+    endtry
+  endif
+  return s:exists_vimproc ? vimproc#system(a:list) : system(join(a:list, ' '))
+endfunction "}}}
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
