@@ -39,7 +39,7 @@ function! s:source.gather_candidates(context)
   if neocomplete#is_auto_complete() &&
         \ line !~# '^import\>.*(' &&
         \ line !~# '^\s\+[,(]' &&
-        \ len(line) <
+        \ len(a:context.complete_str) <
         \   g:neocomplete#auto_completion_start_length
     return []
   endif
