@@ -42,7 +42,7 @@ function! necoghc#get_keyword_pos(cur_text)  "{{{
     if a:cur_text =~# '(.*,'
       return s:last_matchend(a:cur_text, ',\s*')
     endif
-    let parp = matchend(a:cur_text, '(')
+    let parp = matchend(a:cur_text, '(\s*')
     return parp > 0 ? parp :
           \ matchend(a:cur_text, '^import\s\+\(qualified\s\+\)\?')
   else
@@ -84,7 +84,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   if l:line =~# '^import\>.*('
     let l:mod = matchlist(l:line, 'import\s\+\(qualified\s\+\)\?\([^ (]\+\)')[2]
     for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
-      call add(l:list, { 'word': l:sym, 'menu': s:to_desc(printf('%s.%s', l:mod, l:sym), l:dict)})
+      call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict)})
     endfor
     return filter(l:list, 's:word_prefix(v:val, a:cur_keyword_str)')
   endif
@@ -118,7 +118,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     for [l:mod, l:opts] in items(s:get_modules())
       if l:mod == l:qual || (has_key(l:opts, 'as') && l:opts.as == l:qual)
         for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
-          call add(l:list, { 'word': printf('%s.%s', l:qual, l:sym), 'menu': s:to_desc(printf('%s.%s', l:mod, l:sym), l:dict) })
+          call add(l:list, { 'word': l:qual . '.' . l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
         endfor
       endif
     endfor
@@ -126,7 +126,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     for [l:mod, l:opts] in items(s:get_modules())
       if !l:opts.qualified || l:opts.export
         for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
-          call add(l:list, { 'word': l:sym, 'menu': s:to_desc(printf('%s.%s', l:mod, l:sym), l:dict) })
+          call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
         endfor
       endif
     endfor
@@ -148,7 +148,7 @@ function! s:multiline_import(cur_text, type)"{{{
       else " 'list'
         let l:list = []
         for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
-          call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod '.' l:sym, l:dict) })
+          call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
         endfor
         return [0, l:list]
       endif
