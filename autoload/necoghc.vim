@@ -201,9 +201,27 @@ function! s:get_modules() "{{{
   return b:necoghc_modules_cache
 endfunction "}}}
 
+function! s:detect_package_db()
+  for l:dir in [
+        \ ['.cabal-sandbox', '/*packages.conf.d'],
+        \ ['cabal-dev', '/packages*.conf']
+        \ ]
+    let l:sandbox = finddir(l:dir[0], '.;')
+    if l:sandbox !=# ''
+      return get(glob(l:sandbox . l:dir[1], 1, 1), 0)
+    endif
+  endfor
+  return ''
+endfunction
+
 function! s:ghc_mod(cmd) "{{{
   lcd `=expand('%:p:h')`
-  let l:ret = s:system(['ghc-mod', '-g', '-package', '-g', 'ghc'] + a:cmd)
+  let l:opts = ['-g', '-package', '-g', 'ghc']
+  let l:package_db = s:detect_package_db()
+  if l:package_db !=# ''
+    let l:opts += ['-g', '-package-db', '-g', l:package_db]
+  endif
+  let l:ret = s:system(['ghc-mod'] + l:opts + a:cmd)
   lcd -
   return split(l:ret, '\n')
 endfunction "}}}
