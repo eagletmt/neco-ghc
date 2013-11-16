@@ -40,7 +40,7 @@ function! necoghc#get_keyword_pos(cur_text)  "{{{
   endif
   if a:cur_text =~# '^import\>'
     if a:cur_text =~# '(.*,'
-      return s:last_matchend(a:cur_text, ',\s*')
+      return matchend(a:cur_text, '^.*,\s*')
     endif
     let parp = matchend(a:cur_text, '(\s*')
     return parp > 0 ? parp :
@@ -49,7 +49,7 @@ function! necoghc#get_keyword_pos(cur_text)  "{{{
     if s:synname() =~# 'Pragma' && a:cur_text =~# 'OPTIONS_GHC'
       let l:pattern = '-[[:alnum:]-]*$'
     else
-      let l:pattern = "\\%([[:alpha:]_'][[:alnum:]_'.]*\\m\\)$"
+      let l:pattern = '\%([[:alpha:]_''][[:alnum:]_''.]*\m\)$'
     endif
     return match(a:cur_text, l:pattern)
   endif
@@ -81,7 +81,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     return filter(just_list, 's:word_prefix(v:val, a:cur_keyword_str)')
   endif
 
-  if l:line =~# '^import\>.*('
+  if l:line =~# '^import\>.\{-}('
     let l:mod = matchstr(l:line, '^import\s\+\%(qualified\s\+\)\?\zs[^ (]\+')
     for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
       call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict)})
@@ -90,7 +90,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   endif
 
   let l:syn = s:synname()
-  if l:line =~# '^import\s'
+  if l:line =~# '^import\>'
     for l:mod in s:list_cache
       call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
     endfor
@@ -111,7 +111,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     endif
   elseif a:cur_keyword_str =~# '\.'
     " qualified
-    let l:idx = s:last_matchend(a:cur_keyword_str, '\.')
+    let l:idx = matchend(a:cur_keyword_str, '^.*\.')
     let l:qual = a:cur_keyword_str[0 : l:idx-2]
     let l:name = a:cur_keyword_str[l:idx :]
 
@@ -140,11 +140,16 @@ endfunction "}}}
 "                    ,
 " returns Maybe pos
 function! s:multiline_import(cur_text, type) "{{{
-  if a:cur_text =~# '^\s\+[,(]'
+  if a:cur_text =~# '^\s\+[[:alpha:],(]'
     let mod = s:dangling_import(getpos('.')[1])
     if mod != ''
       if a:type == 'pos'
-        return [0, matchend(a:cur_text, '^\s\+[,(]\s*')]
+        let l:idx = matchend(a:cur_text, '^\s\+\%(\ze\%([[:alpha:]]\|([!#$%&*+./<=>?@\\^|~-]\)\|[,(]\s*\)')
+        if l:idx != -1
+          return [0, max([matchend(a:cur_text, '^.*,\s*', l:idx), l:idx])]
+        else
+          return [0, -1]
+        endif
       else " 'list'
         let l:list = []
         for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
@@ -265,15 +270,6 @@ function! s:extract_modules() "{{{
   endwhile
 
   return l:modules
-endfunction "}}}
-
-function! s:last_matchend(str, pat) "{{{
-  let l:idx = matchend(a:str, a:pat)
-  while l:idx != -1
-    let l:ret = l:idx
-    let l:idx = matchend(a:str, a:pat, l:ret)
-  endwhile
-  return l:ret
 endfunction "}}}
 
 function! s:dangling_import(n) "{{{
