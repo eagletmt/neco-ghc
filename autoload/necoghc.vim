@@ -25,7 +25,10 @@ function! necoghc#omnifunc(findstart, base) "{{{
   else
     call necoghc#boot()
     call necoghc#caching_modules()
-    return necoghc#get_complete_words(col('.')-1, a:base)
+    " Redo get_keyword_pos to detect YouCompleteMe.
+    let l:col = col('.')-1
+    let l:pos = necoghc#get_keyword_pos(getline('.')[0 : l:col-1])
+    return necoghc#get_complete_words(l:pos, a:base)
   endif
 endfunction "}}}
 
@@ -55,9 +58,16 @@ function! necoghc#get_keyword_pos(cur_text)  "{{{
   endif
 endfunction "}}}
 
-function! s:word_prefix(dict, keyword) "{{{
+function! s:word_prefix(dict, keyword, need_prefix_filter) "{{{
   let l:len = strlen(a:keyword)
-  return strpart(a:dict.word, 0, l:len) ==# a:keyword
+  if strpart(a:dict.word, 0, l:len) ==# a:keyword
+    if a:need_prefix_filter
+      let a:dict.word = strpart(a:dict.word, l:len)
+    endif
+    return 1
+  else
+    return 0
+  endif
 endfunction "}}}
 
 function! s:to_desc(sym, dict)
@@ -73,12 +83,31 @@ function! s:to_desc(sym, dict)
 endfunction
 
 function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
+  let l:col = col('.')-1
+  " HACK: When invoked from Vim, col('.') returns the position returned by the
+  " omnifunc in findstart phase.
+  if a:cur_keyword_pos == l:col
+    " Invoked from Vim.
+    let l:cur_keyword_str = a:cur_keyword_str
+    let l:need_prefix_filter = 0
+  elseif empty(a:cur_keyword_str)
+    " Invoked from YouCompleteMe.
+    " It doesn't give correct a:base and doesn't filter out prefix.
+    let l:cur_keyword_str = getline('.')[a:cur_keyword_pos : l:col-1]
+    let l:need_prefix_filter = 1
+  else
+    " Invoked from neocomplcache.vim or neocomplete.vim.
+    " They give correct a:base and automatically filter out prefix.
+    let l:cur_keyword_str = a:cur_keyword_str
+    let l:need_prefix_filter = 0
+  endif
+
   let l:list = []
   let l:line = getline('.')[: a:cur_keyword_pos]
 
   let [nothing, just_list] = s:multiline_import(l:line, 'list')
   if !nothing
-    return filter(just_list, 's:word_prefix(v:val, a:cur_keyword_str)')
+    return filter(just_list, 's:word_prefix(v:val, l:cur_keyword_str, 0)')
   endif
 
   if l:line =~# '^import\>.\{-}('
@@ -86,7 +115,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
       call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict)})
     endfor
-    return filter(l:list, 's:word_prefix(v:val, a:cur_keyword_str)')
+    return filter(l:list, 's:word_prefix(v:val, l:cur_keyword_str, 0)')
   endif
 
   let l:syn = s:synname()
@@ -109,11 +138,11 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
         call add(l:list, { 'word': l:flag, 'menu': '[ghc] ' . l:flag })
       endfor
     endif
-  elseif a:cur_keyword_str =~# '\.'
+  elseif l:cur_keyword_str =~# '\.'
     " qualified
-    let l:idx = matchend(a:cur_keyword_str, '^.*\.')
-    let l:qual = a:cur_keyword_str[0 : l:idx-2]
-    let l:name = a:cur_keyword_str[l:idx :]
+    let l:idx = matchend(l:cur_keyword_str, '^.*\.')
+    let l:qual = l:cur_keyword_str[0 : l:idx-2]
+    let l:name = l:cur_keyword_str[l:idx :]
 
     for [l:mod, l:opts] in items(s:get_modules())
       if l:mod == l:qual || (has_key(l:opts, 'as') && l:opts.as == l:qual)
@@ -132,7 +161,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     endfor
   endif
 
-  return filter(l:list, 's:word_prefix(v:val, a:cur_keyword_str)')
+  return filter(l:list, 's:word_prefix(v:val, l:cur_keyword_str, l:need_prefix_filter)')
 endfunction "}}}
 
 " like the following case:
