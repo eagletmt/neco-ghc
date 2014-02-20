@@ -239,7 +239,7 @@ function! s:ghc_mod(cmd) "{{{
   lcd `=expand('%:p:h')`
   let l:ret = s:system(['ghc-mod', '-g', '-package', '-g', 'ghc'] + a:cmd)
   lcd -
-  return split(l:ret, '\n')
+  return split(l:ret, '\r\n\|[\r\n]')
 endfunction "}}}
 
 function! s:extract_modules() "{{{
