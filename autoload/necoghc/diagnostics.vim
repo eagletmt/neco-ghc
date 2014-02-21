@@ -17,4 +17,6 @@ function! necoghc#diagnostics#report()
   catch /^Vim\%((\a\+)\)\=:E117/
     echomsg 'vimproc.vim: not installed'
   endtry
+
+  echomsg 'ghc-mod:' necoghc#ghc_mod_version()
 endfunction
