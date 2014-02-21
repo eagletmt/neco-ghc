@@ -19,4 +19,19 @@ function! necoghc#diagnostics#report()
   endtry
 
   echomsg 'ghc-mod:' necoghc#ghc_mod_version()
+
+  if &l:filetype !=# 'haskell'
+    call s:error('Run this command in the buffer opening a Haskell file')
+    return
+  endif
+  call necoghc#boot()
+  echomsg 'Imported modules:' join(keys(necoghc#get_modules()), ', ')
+
+  echomsg 'Number of symbols in Prelude:' len(necoghc#browse('Prelude'))
+endfunction
+
+function! s:error(msg)
+  echohl ErrorMsg
+  echomsg a:msg
+  echohl None
 endfunction
