@@ -144,7 +144,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     let l:qual = l:cur_keyword_str[0 : l:idx-2]
     let l:name = l:cur_keyword_str[l:idx :]
 
-    for [l:mod, l:opts] in items(s:get_modules())
+    for [l:mod, l:opts] in items(necoghc#get_modules())
       if l:mod == l:qual || (has_key(l:opts, 'as') && l:opts.as == l:qual)
         for [l:sym, l:dict] in items(necoghc#browse(l:mod))
           call add(l:list, { 'word': l:qual . '.' . l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
@@ -152,7 +152,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
       endif
     endfor
   else
-    for [l:mod, l:opts] in items(s:get_modules())
+    for [l:mod, l:opts] in items(necoghc#get_modules())
       if !l:opts.qualified || l:opts.export
         for [l:sym, l:dict] in items(necoghc#browse(l:mod))
           call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
@@ -228,7 +228,7 @@ function! necoghc#caching_modules() "{{{
   let b:necoghc_modules_cache = s:extract_modules()
 endfunction "}}}
 
-function! s:get_modules() "{{{
+function! necoghc#get_modules() "{{{
   if !exists('b:necoghc_modules_cache')
     call necoghc#caching_modules()
   endif
