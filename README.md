@@ -27,21 +27,22 @@ ujihisa added some new features.
 
 ## Usage
 
-### For neocomplcache users
-
-This plugin can be used as a source of
-[neocomplcache](http://www.vim.org/scripts/script.php?script_id=2620) or
-[neocomplete](https://github.com/Shougo/neocomplete.vim).
-You can enjoy auto-completions without any specific configuration.
-
-### For non-neocomplcache users
-
 neco-ghc provides `necoghc#omnifunc` for omni-completion.
+I recommend adding the following in your ~/.vim/ftplugin/haskell.vim.
 
-I suggest adding in your ~/.vim/ftplugin/haskell.vim: `setlocal
-omnifunc=necoghc#omnifunc`.
+```vim
+setlocal omnifunc=necoghc#omnifunc
+```
 
 See `:help compl-omni` for details on omni-completion.
+
+### Completion engines
+This plugin can be used as a source of
+[neocomplete.vim](https://github.com/Shougo/neocomplete.vim) or
+[neocomplcache.vim](https://github.com/Shougo/neocomplcache.vim).
+You can enjoy auto-completions without any specific configuration.
+
+This plugin also should work with [YouCompleteMe](https://github.com/Valloric/YouCompleteMe).
 
 ## Options
 ### `g:necoghc_enable_detailed_browse`
@@ -61,7 +62,7 @@ If for some reason the neco-ghc plugin is not being added to neocomplcache,
 check that the $PATH variable in vim contains the path to your .cabal/bin
 directory.
 
-if not, add in your .vimrc:
+If not, add in your .vimrc:
 
 `let $PATH = $PATH . ':' . expand("~/.cabal/bin")`
 
