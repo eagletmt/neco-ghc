@@ -237,9 +237,21 @@ endfunction "}}}
 
 function! s:ghc_mod(cmd) "{{{
   lcd `=expand('%:p:h')`
-  let l:ret = s:system(['ghc-mod', '-g', '-package', '-g', 'ghc'] + a:cmd)
+  let l:cmd = ['ghc-mod', '-g', '-package', '-g', 'ghc'] + a:cmd
+  let l:ret = s:system(l:cmd)
   lcd -
-  return split(l:ret, '\r\n\|[\r\n]')
+  let l:lines = split(l:ret, '\r\n\|[\r\n]')
+  if l:lines[0] =~# '^Dummy:0:0:Error:'
+    echohl ErrorMsg
+    echomsg printf('neco-ghc: ghc-mod returned error messages: %s', join(l:cmd, ' '))
+    for l:line in l:lines
+      echomsg l:line
+    endfor
+    echohl None
+    return []
+  else
+    return l:lines
+  endif
 endfunction "}}}
 
 function! s:extract_modules() "{{{
