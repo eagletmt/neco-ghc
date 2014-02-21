@@ -1,5 +1,6 @@
-# neco-ghc issues
+# Contributing
 
+## Issues
 When submitting an issue, please include the output by `:NecoGhcDiagnosis`.
 
 ```vim
