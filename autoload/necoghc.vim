@@ -112,7 +112,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 
   if l:line =~# '^import\>.\{-}('
     let l:mod = matchstr(l:line, '^import\s\+\%(qualified\s\+\)\?\zs[^ (]\+')
-    for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
+    for [l:sym, l:dict] in items(necoghc#browse(l:mod))
       call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict)})
     endfor
     return filter(l:list, 's:word_prefix(v:val, l:cur_keyword_str, 0)')
@@ -146,7 +146,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 
     for [l:mod, l:opts] in items(s:get_modules())
       if l:mod == l:qual || (has_key(l:opts, 'as') && l:opts.as == l:qual)
-        for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
+        for [l:sym, l:dict] in items(necoghc#browse(l:mod))
           call add(l:list, { 'word': l:qual . '.' . l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
         endfor
       endif
@@ -154,7 +154,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   else
     for [l:mod, l:opts] in items(s:get_modules())
       if !l:opts.qualified || l:opts.export
-        for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
+        for [l:sym, l:dict] in items(necoghc#browse(l:mod))
           call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
         endfor
       endif
@@ -181,7 +181,7 @@ function! s:multiline_import(cur_text, type) "{{{
         endif
       else " 'list'
         let l:list = []
-        for [l:sym, l:dict] in items(s:ghc_mod_browse(l:mod))
+        for [l:sym, l:dict] in items(necoghc#browse(l:mod))
           call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
         endfor
         return [0, l:list]
@@ -191,7 +191,7 @@ function! s:multiline_import(cur_text, type) "{{{
   return [1, 0]
 endfunction "}}}
 
-function! s:ghc_mod_browse(mod) "{{{
+function! necoghc#browse(mod) "{{{
   if !has_key(s:browse_cache, a:mod)
     call s:ghc_mod_caching_browse(a:mod)
   endif
