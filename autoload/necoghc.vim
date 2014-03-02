@@ -237,7 +237,7 @@ endfunction "}}}
 
 function! s:ghc_mod(cmd) "{{{
   lcd `=expand('%:p:h')`
-  let l:cmd = ['ghc-mod', '-g', '-package', '-g', 'ghc'] + a:cmd
+  let l:cmd = ['ghc-mod'] + a:cmd
   let l:ret = s:system(l:cmd)
   lcd -
   let l:lines = split(l:ret, '\r\n\|[\r\n]')
