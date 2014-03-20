@@ -56,6 +56,13 @@ This feature was introduced in ghc-mod 1.11.5.
 
 ![](http://cache.gyazo.com/f3d2c097475021615581822eee8cb6fd.png)
 
+### `g:necoghc_debug`
+Default: 0
+
+Show error message if ghc-mod command fails.
+Usually it would be noisy because `ghc-mod browse Your.Project.Module` always fails.
+Use this flag only if you have some trouble.
+
 ## Troubleshoot
 
 If for some reason the neco-ghc plugin is not being added to neocomplcache,

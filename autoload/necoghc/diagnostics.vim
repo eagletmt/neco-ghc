@@ -1,4 +1,9 @@
 function! necoghc#diagnostics#report()
+  let l:debug_flag = get(g:, 'necoghc_debug', 0)
+  if !l:debug_flag
+    let g:necoghc_debug = 1
+  endif
+
   echomsg 'Current filetype:' &l:filetype
 
   let l:executable = executable('ghc-mod')
@@ -28,6 +33,10 @@ function! necoghc#diagnostics#report()
   echomsg 'Imported modules:' join(keys(necoghc#get_modules()), ', ')
 
   echomsg 'Number of symbols in Prelude:' len(necoghc#browse('Prelude'))
+
+  if !l:debug_flag
+    let g:necoghc_debug = 0
+  endif
 endfunction
 
 function! s:error(msg)
