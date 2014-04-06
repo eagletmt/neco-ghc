@@ -54,7 +54,13 @@ function! necoghc#get_keyword_pos(cur_text)  "{{{
     else
       let l:pattern = '\%([[:alpha:]_''][[:alnum:]_''.]*\m\)$'
     endif
-    return match(a:cur_text, l:pattern)
+    let l:pos = match(a:cur_text, l:pattern)
+    if l:pos == -1
+      " When the completion method is Vim (or YouCompleteMe?), a:cur_text is
+      " '{-# '.
+      let l:pos = strlen(a:cur_text)
+    endif
+    return l:pos
   endif
 endfunction "}}}
 
