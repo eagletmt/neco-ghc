@@ -43,6 +43,11 @@ This plugin can be used as a source of
 You can enjoy auto-completions without any specific configuration.
 
 This plugin also should work with [YouCompleteMe](https://github.com/Valloric/YouCompleteMe).
+To enable auto-completions, you have to add the following setting.
+
+```vim
+let g:ycm_semantic_triggers = {'haskell' : ['.']}
+```
 
 ## Options
 ### `g:necoghc_enable_detailed_browse`
