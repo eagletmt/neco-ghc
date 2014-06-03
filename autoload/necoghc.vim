@@ -1,7 +1,21 @@
 " http://www.haskell.org/ghc/docs/latest/html/users_guide/pragmas.html
 let s:pragmas = [
-      \ 'LANGUAGE', 'OPTIONS_GHC', 'INCLUDE', 'WARNING', 'DEPRECATED', 'INLINE',
-      \ 'NOINLINE', 'ANN', 'LINE', 'RULES', 'SPECIALIZE', 'UNPACK', 'SOURCE',
+      \ 'ANN',
+      \ 'DEPRECATED',
+      \ 'INCLUDE',
+      \ 'INLINE',
+      \ 'INLINABLE',
+      \ 'LANGUAGE',
+      \ 'LINE',
+      \ 'MINIMAL',
+      \ 'NOINLINE',
+      \ 'NOUNPACK',
+      \ 'OPTIONS_GHC',
+      \ 'RULES',
+      \ 'SOURCE',
+      \ 'SPECIALIZE',
+      \ 'UNPACK',
+      \ 'WARNING',
       \ ]
 
 function! necoghc#boot() "{{{
