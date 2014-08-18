@@ -247,7 +247,14 @@ function! s:ghc_mod(cmd) "{{{
   let l:ret = s:system(l:cmd)
   lcd -
   let l:lines = split(l:ret, '\r\n\|[\r\n]')
-  if l:lines[0] =~# '^Dummy:0:0:Error:'
+  if empty(l:lines)
+    if get(g:, 'necoghc_debug', 0)
+      echohl ErrorMsg
+      echomsg printf('neco-ghc: ghc-mod returned nothing: %s', join(l:cmd, ' '))
+      echohl None
+    endif
+    return []
+  elseif l:lines[0] =~# '^Dummy:0:0:Error:'
     if get(g:, 'necoghc_debug', 0)
       echohl ErrorMsg
       echomsg printf('neco-ghc: ghc-mod returned error messages: %s', join(l:cmd, ' '))
