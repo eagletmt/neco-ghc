@@ -1,10 +1,10 @@
 # Contributing
 
 ## Issues
-When submitting an issue, please include the output by `:NecoGhcDiagnosis`.
+When submitting an issue, please include the output by `:NecoGhcDiagnostics`.
 
 ```vim
-NecoGhcDiagnosis
+NecoGhcDiagnostics
 ```
 
 It shows your environment information possibly related to neco-ghc.
