@@ -344,8 +344,8 @@ function! s:dangling_import(n) "{{{
 endfunction "}}}
 
 function! necoghc#ghc_mod_version() "{{{
-  let l:ret = s:system(['ghc-mod'])
-  return matchstr(l:ret, 'ghc-mod version \zs\d\+\.\d\+\.\d\+')
+  let l:ret = s:system(['ghc-mod', 'version'])
+  return matchstr(l:ret, 'ghc-mod version \zs\d\+\.\d\+\.\d\+\.\d\+')
 endfunction "}}}
 
 function! s:synname(...) "{{{
