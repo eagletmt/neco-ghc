@@ -359,7 +359,7 @@ endfunction "}}}
 
 function! necoghc#ghc_mod_version() "{{{
   let l:ret = s:system(['ghc-mod', 'version'])
-  return matchstr(l:ret, 'ghc-mod version \zs\d\+\.\d\+\.\d\+')
+  return matchstr(l:ret, '\cghc-mod\%(.exe\)\? version \zs\d\+\.\d\+\.\d\+')
 endfunction "}}}
 
 function! s:synname(...) "{{{
