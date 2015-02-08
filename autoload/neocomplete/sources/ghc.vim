@@ -21,7 +21,7 @@ function! s:source.hooks.on_init(context)
 endfunction
 
 function! s:source.hooks.on_final(context)
-  delcommand NeoCompleteGhcMakeCache
+  silent! delcommand NeoCompleteGhcMakeCache
 endfunction
 
 function! s:source.get_complete_position(context)
