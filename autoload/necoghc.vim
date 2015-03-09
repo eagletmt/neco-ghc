@@ -20,9 +20,6 @@ let s:pragmas = [
 
 function! necoghc#boot() "{{{
   if !exists('s:browse_cache')
-    let s:list_cache = s:ghc_mod(['list'])
-    let s:lang_cache = s:ghc_mod(['lang'])
-    let s:flag_cache = s:ghc_mod(['flag'])
     let s:browse_cache = {}
     call s:ghc_mod_caching_browse('Prelude')
   endif
@@ -147,6 +144,9 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 
   let l:syn = s:synname()
   if l:line =~# '^import\>'
+    if !exists('s:list_cache')
+      let s:list_cache = s:ghc_mod(['list'])
+    endif
     for l:mod in s:list_cache
       call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
     endfor
@@ -156,11 +156,17 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
         call add(l:list, { 'word': l:p, 'menu': '[ghc] ' . l:p })
       endfor
     elseif l:line =~# 'LANGUAGE'
+      if !exists('s:lang_cache')
+        let s:lang_cache = s:ghc_mod(['lang'])
+      endif
       for l:lang in s:lang_cache
         call add(l:list, { 'word': l:lang, 'menu': '[ghc] ' . l:lang })
         call add(l:list, { 'word': 'No' . l:lang, 'menu': '[ghc] No' . l:lang })
       endfor
     elseif l:line =~# 'OPTIONS_GHC'
+      if !exists('s:flag_cache')
+        let s:flag_cache = s:ghc_mod(['flag'])
+      endif
       for l:flag in s:flag_cache
         call add(l:list, { 'word': l:flag, 'menu': '[ghc] ' . l:flag })
       endfor
