@@ -19,16 +19,20 @@ let s:pragmas = [
       \ ]
 
 function! necoghc#boot() "{{{
-  if !exists('s:browse_cache')
-    let s:browse_cache = {}
-    call s:ghc_mod_caching_browse('Prelude')
+  if exists('s:browse_cache')
+    return
   endif
+
+  let s:browse_cache = {}
+  call s:ghc_mod_caching_browse('Prelude')
 
   augroup necoghc
     autocmd!
     autocmd FileType haskell call necoghc#caching_modules()
-    autocmd InsertLeave * if exists('b:necoghc_modules_cache') |
-          \ call necoghc#caching_modules() | endif
+    autocmd InsertLeave *
+          \ if exists('b:necoghc_modules_cache') |
+          \   call necoghc#caching_modules() |
+          \ endif
   augroup END
 endfunction "}}}
 
