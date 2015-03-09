@@ -28,11 +28,7 @@ function! necoghc#boot() "{{{
 
   augroup necoghc
     autocmd!
-    autocmd FileType haskell call necoghc#caching_modules()
-    autocmd InsertLeave *
-          \ if exists('b:necoghc_modules_cache') |
-          \   call necoghc#caching_modules() |
-          \ endif
+    autocmd FileType haskell call s:on_haskell()
   augroup END
 endfunction "}}}
 
@@ -46,7 +42,9 @@ function! necoghc#omnifunc(findstart, base) "{{{
     endif
   else
     call necoghc#boot()
-    call necoghc#caching_modules()
+    if !exists('b:necoghc_modules_cache')
+      call necoghc#caching_modules()
+    endif
     " Redo get_keyword_pos to detect YouCompleteMe.
     let l:col = col('.')-1
     let l:pos = necoghc#get_keyword_pos(getline('.')[0 : l:col-1])
@@ -400,6 +398,14 @@ function! s:system(list) "{{{
     endtry
   endif
   return s:exists_vimproc ? vimproc#system(a:list) : system(join(a:list, ' '))
+endfunction "}}}
+
+function! s:on_haskell() "{{{
+  call necoghc#caching_modules()
+
+  augroup necoghc
+    autocmd InsertLeave <buffer> call necoghc#caching_modules()
+  augroup END
 endfunction "}}}
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
