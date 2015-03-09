@@ -30,6 +30,8 @@ function! necoghc#boot() "{{{
     autocmd!
     autocmd FileType haskell call s:on_haskell()
   augroup END
+
+  call s:on_haskell()
 endfunction "}}}
 
 function! necoghc#omnifunc(findstart, base) "{{{
