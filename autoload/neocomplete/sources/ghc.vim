@@ -10,7 +10,7 @@ let s:source = {
 function! s:source.hooks.on_init(context)
   call necoghc#boot()
 
-  command! -nargs=0 NeoCompleteGhcMakeCache
+  command! -bar -nargs=0 NeoCompleteGhcMakeCache
         \ call necoghc#caching_modules()
 endfunction
 

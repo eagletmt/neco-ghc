@@ -7,10 +7,7 @@ let s:source = {
 function! s:source.initialize()
   call necoghc#boot()
 
-  command! -nargs=0 NeoComplCacheCachingGhcImports
-        \ call neocomplcache#print_warning('This command is deprecated. Use NeoComplCacheCachingGhc instead.')
-        \ | call necoghc#caching_modules()
-  command! -nargs=0 NeoComplCacheCachingGhc
+  command! -bar -nargs=0 NeoComplCacheCachingGhc
         \ call necoghc#caching_modules()
 endfunction
 

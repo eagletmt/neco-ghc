@@ -44,9 +44,6 @@ function! necoghc#omnifunc(findstart, base) "{{{
     endif
   else
     call necoghc#boot()
-    if !exists('b:necoghc_modules_cache')
-      call necoghc#caching_modules()
-    endif
     " Redo get_keyword_pos to detect YouCompleteMe.
     let l:col = col('.')-1
     let l:pos = necoghc#get_keyword_pos(getline('.')[0 : l:col-1])
@@ -408,6 +405,9 @@ function! s:on_haskell() "{{{
   augroup necoghc
     autocmd InsertLeave <buffer> call necoghc#caching_modules()
   augroup END
+
+  command! -buffer -bar -nargs=0 NecoGhcCaching
+        \ call necoghc#caching_modules()
 endfunction "}}}
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
