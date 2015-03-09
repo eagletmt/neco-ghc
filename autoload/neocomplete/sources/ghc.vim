@@ -10,12 +10,6 @@ let s:source = {
 function! s:source.hooks.on_init(context)
   call necoghc#boot()
 
-  augroup necoghc-neocomplete
-    autocmd FileType haskell call necoghc#caching_modules()
-    autocmd InsertLeave * if exists('b:necoghc_modules_cache') |
-          \ call necoghc#caching_modules() | endif
-  augroup END
-
   command! -nargs=0 NeoCompleteGhcMakeCache
         \ call necoghc#caching_modules()
 endfunction

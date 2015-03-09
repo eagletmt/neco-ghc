@@ -26,6 +26,13 @@ function! necoghc#boot() "{{{
     let s:browse_cache = {}
     call s:ghc_mod_caching_browse('Prelude')
   endif
+
+  augroup necoghc
+    autocmd!
+    autocmd FileType haskell call necoghc#caching_modules()
+    autocmd InsertLeave * if exists('b:necoghc_modules_cache') |
+          \ call necoghc#caching_modules() | endif
+  augroup END
 endfunction "}}}
 
 function! necoghc#omnifunc(findstart, base) "{{{

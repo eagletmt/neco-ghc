@@ -7,11 +7,6 @@ let s:source = {
 function! s:source.initialize()
   call necoghc#boot()
 
-  augroup necoghc-neocomplcache
-    autocmd FileType haskell call necoghc#caching_modules()
-    autocmd InsertLeave * if exists('b:necoghc_modules_cache') | call necoghc#caching_modules() | endif
-  augroup END
-
   command! -nargs=0 NeoComplCacheCachingGhcImports
         \ call neocomplcache#print_warning('This command is deprecated. Use NeoComplCacheCachingGhc instead.')
         \ | call necoghc#caching_modules()
