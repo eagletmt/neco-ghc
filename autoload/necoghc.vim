@@ -152,7 +152,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
       call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
     endfor
   elseif l:syn =~# 'Pragma'
-    if match(l:line, '{-#\s\+\zs\w*') == a:cur_keyword_pos
+    if l:line[:a:cur_keyword_pos-1] =~# '{-#\s\+$'
       for l:p in s:pragmas
         call add(l:list, { 'word': l:p, 'menu': '[ghc] ' . l:p })
       endfor
