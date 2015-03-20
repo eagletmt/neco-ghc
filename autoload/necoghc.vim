@@ -131,8 +131,8 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
   let l:line = getline('.')[: a:cur_keyword_pos]
 
-  if (&filetype == "lhaskell") 
-    let l:line = substitute(l:line, "^>[ \t]*", "", "g")
+  if (&filetype ==# 'lhaskell') 
+    let l:line = substitute(l:line, '^>[ \t]*', '', 'g')
   endif
 
   let [nothing, just_list] = s:multiline_import(l:line, 'list')
