@@ -1,7 +1,7 @@
 let s:source = {
       \ 'name' : 'ghc',
       \ 'kind' : 'ftplugin',
-      \ 'filetypes': { 'haskell': 1 },
+      \ 'filetypes': { 'haskell': 1, 'lhaskell': 1 },
       \ 'min_pattern_length' :
       \   g:neocomplete#auto_completion_start_length,
       \ 'hooks' : {},

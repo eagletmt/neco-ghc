@@ -29,6 +29,7 @@ function! necoghc#boot() "{{{
   augroup necoghc
     autocmd!
     autocmd FileType haskell call s:on_haskell()
+    autocmd FileType lhaskell call s:on_haskell()
   augroup END
 
   call s:on_haskell()
@@ -129,6 +130,10 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 
   let l:list = []
   let l:line = getline('.')[: a:cur_keyword_pos]
+
+  if (&filetype ==# 'lhaskell') 
+    let l:line = substitute(l:line, '^>[ \t]*', '', 'g')
+  endif
 
   let [nothing, just_list] = s:multiline_import(l:line, 'list')
   if !nothing
