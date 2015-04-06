@@ -307,7 +307,7 @@ function! s:extract_modules() "{{{
 
   let l:in_module = 0
   let l:line = 1
-  while l:line < line('.')
+  while l:line <= line('.')
     let l:str = getline(l:line)
     if l:str =~# '^import\s\+'
       let l:idx = matchend(l:str, '^import\s\+')
