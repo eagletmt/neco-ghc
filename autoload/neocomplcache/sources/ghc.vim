@@ -41,12 +41,6 @@ function! neocomplcache#sources#ghc#define()
   if !executable('ghc-mod')
     return {}
   endif
-  let l:version = necoghc#ghc_mod_version()
-  if l:version < '1.0.8'
-    call neocomplcache#print_warning("neco-ghc requires ghc-mod 1.0.8+")
-    call neocomplcache#print_warning("detected version: " . l:version)
-    return {}
-  endif
   return s:source
 endfunction
 

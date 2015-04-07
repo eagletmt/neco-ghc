@@ -47,13 +47,6 @@ function! neocomplete#sources#ghc#define()
     return {}
   endif
 
-  let mod_version = necoghc#ghc_mod_version()
-  if mod_version < '1.0.8'
-    call neocomplete#print_warning("neco-ghc requires ghc-mod 1.0.8+")
-    call neocomplete#print_warning("detected version: " . mod_version)
-    return {}
-  endif
-
   return s:source
 endfunction
 
