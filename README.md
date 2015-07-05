@@ -1,4 +1,4 @@
-# neocomplcache-ghc (neco-ghc)
+# neco-ghc: ghc-mod completion for neocomplcache/neocomplete/deoplete
 
 A completion plugin for Haskell, using ghc-mod
 
@@ -39,7 +39,8 @@ See `:help compl-omni` for details on omni-completion.
 ### Completion engines
 This plugin can be used as a source of
 [neocomplete.vim](https://github.com/Shougo/neocomplete.vim) or
-[neocomplcache.vim](https://github.com/Shougo/neocomplcache.vim).
+[neocomplcache.vim](https://github.com/Shougo/neocomplcache.vim) or
+[deoplete.nvim](https://github.com/Shougo/deoplete.nvim).
 You can enjoy auto-completions without any specific configuration.
 
 This plugin also should work with [YouCompleteMe](https://github.com/Valloric/YouCompleteMe).

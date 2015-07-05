@@ -10,7 +10,7 @@ NecoGhcDiagnostics
 It shows your environment information possibly related to neco-ghc.
 
 - Current filetype
-    - neco-ghc only works in the buffer with filetype haskell.
+    - neco-ghc only works in the buffer with filetype haskell or lhaskell.
 - ghc-mod executable (required)
     - neco-ghc requires [ghc-mod](https://github.com/kazu-yamamoto/ghc-mod) and it must be placed in your `$PATH`.
 - 'omnifunc'
@@ -18,6 +18,7 @@ It shows your environment information possibly related to neco-ghc.
 - Completion plugin installation (optional)
     - [neocomplete.vim](https://github.com/Shougo/neocomplete.vim)
     - [neocomplcache.vim](https://github.com/Shougo/neocomplcache.vim)
+    - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)
     - [YouCompleteMe](https://github.com/Valloric/YouCompleteMe)
 - Other  plugin installation (optional)
     - [vimproc.vim](https://github.com/Shougo/vimproc.vim)
