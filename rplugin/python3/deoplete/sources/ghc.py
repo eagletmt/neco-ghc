@@ -4,6 +4,7 @@
 #=============================================================================
 
 from .base import Base
+import deoplete.util
 
 class Source(Base):
     def __init__(self, vim):
@@ -12,6 +13,8 @@ class Source(Base):
         self.name = 'ghc'
         self.mark = '[ghc]'
         self.filetypes = ['haskell', 'lhaskell']
+        self.is_bytepos = True
+
         self.executable_ghc = self.vim.eval('executable("ghc-mod")')
         self.vim.command('call necoghc#boot()')
 
@@ -19,8 +22,9 @@ class Source(Base):
         if not self.executable_ghc:
             return -1
 
-        return self.vim.eval("necoghc#get_keyword_pos('"
-                             + str(context['input']) + "')")
+        return self.vim.eval("necoghc#get_keyword_pos('{0}')"
+                             .format(deoplete.util.escape(context['input'])
+                                     ))
 
     def gather_candidates(self, context):
         return self.vim.eval("necoghc#get_complete_words("
