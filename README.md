@@ -31,7 +31,9 @@ neco-ghc provides `necoghc#omnifunc` for omni-completion.
 I recommend adding the following in your ~/.vim/ftplugin/haskell.vim.
 
 ```vim
-setlocal omnifunc=necoghc#omnifunc
+" Disable haskell-vim omnifunc
+let g:haskellmode_completion_ghc = 0
+autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
 ```
 
 See `:help compl-omni` for details on omni-completion.
