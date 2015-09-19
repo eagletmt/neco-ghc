@@ -22,7 +22,7 @@ ujihisa added some new features.
 
 ## Install
 
-* Install ghc-mod package by `cabal install ghc-mod`
+* Install ghc-mod package by `stack install ghc-mod` or `cabal install ghc-mod`
 * Unarchive neco-ghc and put it into a dir of your &rtp.
 
 ## Usage
