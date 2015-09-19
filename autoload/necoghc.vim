@@ -131,7 +131,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   let l:list = []
   let l:line = getline('.')[: a:cur_keyword_pos]
 
-  if (&filetype ==# 'lhaskell') 
+  if (&filetype ==# 'lhaskell')
     let l:line = substitute(l:line, '^>[ \t]*', '', 'g')
   endif
 
@@ -277,7 +277,11 @@ endfunction "}}}
 function! s:ghc_mod(cmd) "{{{
   let l:dir = getcwd()
   try
-    lcd `=expand('%:p:h')`
+    " Calling lcd during a call to lcd, i.e. "lcd `=s:get_ghcmod_root()`",
+    " results in an error. To circumvent this, we call s:get_ghcmod_root()
+    " indirectly.
+    let l:ghcmod_dir = s:get_ghcmod_root()
+    lcd `=l:ghcmod_dir`
     let l:cmd = ['ghc-mod'] + a:cmd
     let l:ret = s:system(l:cmd)
   finally
@@ -417,6 +421,22 @@ function! s:on_haskell() "{{{
 
   command! -buffer -bar -nargs=0 NecoGhcCaching
         \ call necoghc#caching_modules()
+endfunction "}}}
+
+" Adapted version of s:find_basedir from
+" https://github.com/eagletmt/ghcmod-vim/blob/3e012a5b0b904c5c32eeea39071534d492a64a0f/autoload/ghcmod.vim#L336-L350
+function! s:get_ghcmod_root() "{{{
+  if !exists('b:ghcmod_root')
+    let l:dir = getcwd()
+    try
+      lcd `=expand('%:p:h')`
+      let b:ghcmod_root =
+        \ substitute(s:system(['ghc-mod', 'root']), '\n*$', '', '')
+    finally
+      lcd `=l:dir`
+    endtry
+  endif
+  return b:ghcmod_root
 endfunction "}}}
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
