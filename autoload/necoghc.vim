@@ -116,16 +116,19 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     " Invoked from Vim.
     let l:cur_keyword_str = a:cur_keyword_str
     let l:need_prefix_filter = 0
+    let l:need_filter = 1
   elseif empty(a:cur_keyword_str)
     " Invoked from YouCompleteMe.
     " It doesn't give correct a:base and doesn't filter out prefix.
     let l:cur_keyword_str = getline('.')[a:cur_keyword_pos : l:col-1]
     let l:need_prefix_filter = 1
+    let l:need_filter = 1
   else
     " Invoked from neocomplcache.vim or neocomplete.vim.
-    " They give correct a:base and automatically filter out prefix.
+    " They give correct a:base and doesn't need filter.
     let l:cur_keyword_str = a:cur_keyword_str
     let l:need_prefix_filter = 0
+    let l:need_filter = 0
   endif
 
   let l:list = []
@@ -137,7 +140,9 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 
   let [nothing, just_list] = s:multiline_import(l:line, 'list')
   if !nothing
-    return filter(just_list, 's:word_prefix(v:val, l:cur_keyword_str, 0)')
+    return s:filter(just_list,
+          \       's:word_prefix(v:val, l:cur_keyword_str, 0)',
+          \       l:need_filter)
   endif
 
   if l:line =~# '^import\>.\{-}('
@@ -146,7 +151,9 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
       call add(l:list, { 'word': l:sym,
             \            'menu': s:to_desc(l:mod . '.' . l:sym, l:dict)})
     endfor
-    return filter(l:list, 's:word_prefix(v:val, l:cur_keyword_str, 0)')
+    return filter(l:list,
+          \       's:word_prefix(v:val, l:cur_keyword_str, 0)',
+          \       l:need_filter)
   endif
 
   let l:syn = s:synname()
@@ -203,7 +210,10 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     endfor
   endif
 
-  return filter(l:list, 's:word_prefix(v:val, l:cur_keyword_str, l:need_prefix_filter)')
+  return s:filter(l:list,
+        \         's:word_prefix(v:val, l:cur_keyword_str,
+        \                        l:need_prefix_filter)',
+        \         l:need_filter)
 endfunction "}}}
 
 " like the following case:
@@ -441,6 +451,10 @@ function! s:get_ghcmod_root() "{{{
     endtry
   endif
   return b:ghcmod_root
+endfunction "}}}
+
+function! s:filter(list, expr, needed) "{{{
+  return a:needed ? filter(a:list, a:expr) : a:list
 endfunction "}}}
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
