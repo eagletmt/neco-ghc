@@ -151,7 +151,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
       call add(l:list, { 'word': l:sym,
             \            'menu': s:to_desc(l:mod . '.' . l:sym, l:dict)})
     endfor
-    return filter(l:list,
+    return s:filter(l:list,
           \       's:word_prefix(v:val, l:cur_keyword_str, 0)',
           \       l:need_filter)
   endif
