@@ -140,9 +140,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
 
   let [nothing, just_list] = s:multiline_import(l:line, 'list')
   if !nothing
-    return s:filter(just_list,
-          \       's:word_prefix(v:val, l:cur_keyword_str, 0)',
-          \       l:need_filter)
+    return s:filter(just_list, l:cur_keyword_str, 0, l:need_filter)
   endif
 
   if l:line =~# '^import\>.\{-}('
@@ -151,9 +149,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
       call add(l:list, { 'word': l:sym,
             \            'menu': s:to_desc(l:mod . '.' . l:sym, l:dict)})
     endfor
-    return s:filter(l:list,
-          \       's:word_prefix(v:val, l:cur_keyword_str, 0)',
-          \       l:need_filter)
+    return s:filter(l:list, l:cur_keyword_str, 0, l:need_filter)
   endif
 
   let l:syn = s:synname()
@@ -210,9 +206,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     endfor
   endif
 
-  return s:filter(l:list,
-        \         's:word_prefix(v:val, l:cur_keyword_str,
-        \                        l:need_prefix_filter)',
+  return s:filter(l:list, l:cur_keyword_str, l:need_prefix_filter,
         \         l:need_filter)
 endfunction "}}}
 
@@ -453,8 +447,10 @@ function! s:get_ghcmod_root() "{{{
   return b:ghcmod_root
 endfunction "}}}
 
-function! s:filter(list, expr, needed) "{{{
-  return a:needed ? filter(a:list, a:expr) : a:list
+function! s:filter(list, keyword, need_prefix, needed) "{{{
+  return a:needed ? filter(a:list,
+        \                  's:word_prefix(v:val, a:keyword, a:need_prefix)'
+        \                 ) : a:list
 endfunction "}}}
 
 " vim: ts=2 sw=2 sts=2 foldmethod=marker
