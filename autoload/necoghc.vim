@@ -97,7 +97,7 @@ function! s:word_prefix(dict, keyword, need_prefix_filter) "{{{
 endfunction "}}}
 
 function! s:to_desc(sym, dict)
-  let l:desc = ''
+  let l:desc = '[ghc] '
   if has_key(a:dict, 'kind')
     let l:desc .= printf('%s %s %s', a:dict.kind, a:sym, a:dict.args)
   elseif has_key(a:dict, 'type')
@@ -146,8 +146,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
   if l:line =~# '^import\>.\{-}('
     let l:mod = matchstr(l:line, '^import\s\+\%(qualified\s\+\)\?\zs[^ (]\+')
     for [l:sym, l:dict] in items(necoghc#browse(l:mod))
-      call add(l:list, { 'word': l:sym,
-            \            'menu': s:to_desc(l:mod . '.' . l:sym, l:dict)})
+      call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict)})
     endfor
     return s:filter(l:list, l:cur_keyword_str, 0, l:need_filter)
   endif
@@ -158,27 +157,27 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
       let s:list_cache = s:ghc_mod(['list'])
     endif
     for l:mod in s:list_cache
-      call add(l:list, { 'word': l:mod })
+      call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
     endfor
   elseif l:syn =~# 'Pragma'
     if l:line[:a:cur_keyword_pos-1] =~# '{-#\s\+$'
       for l:p in s:pragmas
-        call add(l:list, { 'word': l:p })
+        call add(l:list, { 'word': l:p, 'menu': '[ghc] ' . l:p })
       endfor
     elseif l:line =~# 'LANGUAGE'
       if !exists('s:lang_cache')
         let s:lang_cache = s:ghc_mod(['lang'])
       endif
       for l:lang in s:lang_cache
-        call add(l:list, { 'word': l:lang })
-        call add(l:list, { 'word': 'No' . l:lang })
+        call add(l:list, { 'word': l:lang, 'menu': '[ghc] ' . l:lang })
+        call add(l:list, { 'word': 'No' . l:lang, 'menu': '[ghc] No' . l:lang })
       endfor
     elseif l:line =~# 'OPTIONS_GHC'
       if !exists('s:flag_cache')
         let s:flag_cache = s:ghc_mod(['flag'])
       endif
       for l:flag in s:flag_cache
-        call add(l:list, { 'word': l:flag })
+        call add(l:list, { 'word': l:flag, 'menu': '[ghc] ' . l:flag })
       endfor
     endif
   elseif l:cur_keyword_str =~# '\.'
@@ -190,8 +189,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     for [l:mod, l:opts] in items(necoghc#get_modules())
       if l:mod == l:qual || (has_key(l:opts, 'as') && l:opts.as == l:qual)
         for [l:sym, l:dict] in items(necoghc#browse(l:mod))
-          call add(l:list, { 'word': l:qual . '.' . l:sym,
-                \            'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
+          call add(l:list, { 'word': l:qual . '.' . l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
         endfor
       endif
     endfor
@@ -199,8 +197,7 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) "{{{
     for [l:mod, l:opts] in items(necoghc#get_modules())
       if !l:opts.qualified || l:opts.export
         for [l:sym, l:dict] in items(necoghc#browse(l:mod))
-          call add(l:list, { 'word': l:sym,
-                \            'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
+          call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
         endfor
       endif
     endfor
@@ -228,8 +225,7 @@ function! s:multiline_import(cur_text, type) "{{{
       else " 'list'
         let l:list = []
         for [l:sym, l:dict] in items(necoghc#browse(l:mod))
-          call add(l:list, { 'word': l:sym,
-                \            'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
+          call add(l:list, { 'word': l:sym, 'menu': s:to_desc(l:mod . '.' . l:sym, l:dict) })
         endfor
         return [0, l:list]
       endif
