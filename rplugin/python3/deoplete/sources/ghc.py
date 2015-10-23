@@ -17,16 +17,14 @@ class Source(Base):
         self.is_bytepos = True
         self.min_pattern_length = 0
 
-        self.executable_ghc = self.vim.eval('executable("ghc-mod")')
-        self.vim.command('call necoghc#boot()')
+        self.executable_ghc = self.vim.funcs.executable('ghc-mod')
+        self.vim.call('necoghc#boot')
 
     def get_complete_position(self, context):
         if not self.executable_ghc:
             return -1
 
-        return self.vim.eval("necoghc#get_keyword_pos('{0}')"
-                             .format(deoplete.util.escape(context['input'])
-                                     ))
+        return self.vim.call('necoghc#get_keyword_pos', context['input'])
 
     def gather_candidates(self, context):
         # force auto-completion on importing functions
@@ -38,6 +36,7 @@ class Source(Base):
                                 'g:deoplete#auto_completion_start_length') :
                 return []
 
-        return self.vim.eval("necoghc#get_complete_words("
-                             + str(context['complete_position']) + ",'"
-                             + str(context['complete_str']) + "')")
+        return self.vim.call('necoghc#get_complete_words',
+                             context['complete_position'],
+                             context['complete_str'])
+
