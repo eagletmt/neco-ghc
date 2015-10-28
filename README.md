@@ -73,13 +73,18 @@ Use this flag only if you have some trouble.
 
 ## Troubleshoot
 
-If for some reason the neco-ghc plugin is not being added to neocomplcache,
-check that the $PATH variable in vim contains the path to your .cabal/bin
-directory.
+### Q: neco-ghc does not work
 
-If not, add in your .vimrc:
+Check the $PATH variable in vim contains the path to your ghc-mod command.
+Or you can execute `:NecoGhcDiagnostics` command for debug.
 
-`let $PATH = $PATH . ':' . expand("~/.cabal/bin")`
+### Q: Completion isn't working for local functions or modules
+
+https://github.com/eagletmt/neco-ghc/issues/44
+
+It's the limitation of ghc-mod.
+ghc-mod can show symbols of installed modules only.
+ghc-mod cannot show symbols of developping modules or current source file.
 
 ## License
 
