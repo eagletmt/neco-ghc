@@ -9,13 +9,6 @@ let s:source = {
 
 function! s:source.hooks.on_init(context)
   call necoghc#boot()
-
-  command! -bar -nargs=0 NeoCompleteGhcMakeCache
-        \ call necoghc#caching_modules()
-endfunction
-
-function! s:source.hooks.on_final(context)
-  delcommand NeoCompleteGhcMakeCache
 endfunction
 
 function! s:source.get_complete_position(context)

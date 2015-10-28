@@ -6,14 +6,6 @@ let s:source = {
 
 function! s:source.initialize()
   call necoghc#boot()
-
-  command! -bar -nargs=0 NeoComplCacheCachingGhc
-        \ call necoghc#caching_modules()
-endfunction
-
-function! s:source.finalize()
-  delcommand NeoComplCacheCachingGhcImports
-  delcommand NeoComplCacheCachingGhc
 endfunction
 
 function! s:source.get_keyword_pos(cur_text)
