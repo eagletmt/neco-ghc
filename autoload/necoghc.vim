@@ -247,6 +247,11 @@ function! s:ghc_mod_caching_browse(mod) "{{{
   if get(g:, 'necoghc_enable_detailed_browse')
     let l:cmd += ['-d']
   endif
+	" a callback to supply extra parameters to the `browse` command
+	" depending on the module name
+	if exists('*g:NecoghcExtraBrowseOptions')
+		let l:cmd += g:NecoghcExtraBrowseOptions(a:mod)
+	endif
   let l:cmd += [a:mod]
   for l:line in s:ghc_mod(l:cmd)
     let l:m = matchlist(l:line, '^\(class\|data\|type\|newtype\) \(\S\+\)\( .\+\)\?$')
