@@ -438,7 +438,7 @@ function! s:get_ghcmod_root() "{{{
   if !exists('b:ghcmod_root')
     let l:dir = getcwd()
     try
-      lcd `=expand('%:p:h')`
+      lcd `=fnamemodify(bufname('%'), ':p:h')`
       let b:ghcmod_root =
         \ substitute(s:system(['ghc-mod', 'root']), '\n*$', '', '')
     finally
