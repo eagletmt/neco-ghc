@@ -4,6 +4,7 @@ let s:source = {
       \ 'filetypes': { 'haskell': 1, 'lhaskell': 1 },
       \ 'min_pattern_length' :
       \   g:neocomplete#auto_completion_start_length,
+      \ 'input_pattern' : '^import\>.\{-}(\|[^. \t0-9]\.\w*',
       \ 'hooks' : {},
       \ }
 
@@ -21,15 +22,6 @@ endfunction
 
 function! s:source.gather_candidates(context)
   let line = getline('.')[: a:context.complete_pos]
-
-  " force auto-completion on importing functions
-  if neocomplete#is_auto_complete() &&
-        \ line !~# '^import\>.\{-}(' &&
-        \ line !~# '^\s\+[[:alpha:],(]' &&
-        \ len(a:context.complete_str) <
-        \   g:neocomplete#auto_completion_start_length
-    return []
-  endif
 
   return necoghc#get_complete_words(
         \ a:context.complete_pos, a:context.complete_str)
