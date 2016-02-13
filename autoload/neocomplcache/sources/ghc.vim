@@ -4,11 +4,11 @@ let s:source = {
       \ 'filetypes': { 'haskell': 1 },
       \ }
 
-function! s:source.initialize()
+function! s:source.initialize() abort
   call necoghc#boot()
 endfunction
 
-function! s:source.get_keyword_pos(cur_text)
+function! s:source.get_keyword_pos(cur_text) abort
   if neocomplcache#within_comment()
     return -1
   else
@@ -16,7 +16,7 @@ function! s:source.get_keyword_pos(cur_text)
   endif
 endfunction
 
-function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str)
+function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) abort
   let l:line = getline('.')[0 : a:cur_keyword_pos]
   " force auto-completion on importing functions
   if neocomplcache#is_auto_complete() &&
@@ -29,7 +29,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str)
   return necoghc#get_complete_words(a:cur_keyword_pos, a:cur_keyword_str)
 endfunction
 
-function! neocomplcache#sources#ghc#define()
+function! neocomplcache#sources#ghc#define() abort
   if !executable('ghc-mod')
     return {}
   endif

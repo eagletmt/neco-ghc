@@ -1,4 +1,4 @@
-function! necoghc#diagnostics#report()
+function! necoghc#diagnostics#report() abort
   let l:debug_flag = get(g:, 'necoghc_debug', 0)
   if !l:debug_flag
     let g:necoghc_debug = 1
@@ -39,7 +39,7 @@ function! necoghc#diagnostics#report()
   endif
 endfunction
 
-function! s:error(msg)
+function! s:error(msg) abort
   echohl ErrorMsg
   echomsg a:msg
   echohl None

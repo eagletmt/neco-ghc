@@ -8,11 +8,11 @@ let s:source = {
       \ 'hooks' : {},
       \ }
 
-function! s:source.hooks.on_init(context)
+function! s:source.hooks.on_init(context) abort
   call necoghc#boot()
 endfunction
 
-function! s:source.get_complete_position(context)
+function! s:source.get_complete_position(context) abort
   if neocomplete#within_comment()
     return -1
   endif
@@ -20,14 +20,14 @@ function! s:source.get_complete_position(context)
   return necoghc#get_keyword_pos(a:context.input)
 endfunction
 
-function! s:source.gather_candidates(context)
+function! s:source.gather_candidates(context) abort
   let line = getline('.')[: a:context.complete_pos]
 
   return necoghc#get_complete_words(
         \ a:context.complete_pos, a:context.complete_str)
 endfunction
 
-function! neocomplete#sources#ghc#define()
+function! neocomplete#sources#ghc#define() abort
   if !executable('ghc-mod')
     return {}
   endif
