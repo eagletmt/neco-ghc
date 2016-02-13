@@ -25,6 +25,11 @@ ujihisa added some new features.
 * Install ghc-mod package by `stack install ghc-mod` or `cabal install ghc-mod`
 * Unarchive neco-ghc and put it into a dir of your &rtp.
 
+Note: If you use ghc-mod 5.4, you should use ghc-mod 5.5+.
+Because, ghc-mod 5.5 fix the rootdir problem.
+
+https://github.com/DanielG/ghc-mod/issues/665
+
 ## Usage
 
 neco-ghc provides `necoghc#omnifunc` for omni-completion.
