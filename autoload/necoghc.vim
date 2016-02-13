@@ -284,19 +284,8 @@ function! necoghc#get_modules() "{{{
 endfunction "}}}
 
 function! s:ghc_mod(cmd) "{{{
-  let l:dir = getcwd()
-  try
-    " Calling lcd during a call to lcd, i.e. "lcd `=s:get_ghcmod_root()`",
-    " results in an error. To circumvent this, we call s:get_ghcmod_root()
-    " indirectly.
-    let l:ghcmod_dir = s:get_ghcmod_root()
-    lcd `=l:ghcmod_dir`
-    let l:cmd = ['ghc-mod'] + a:cmd
-    let l:ret = s:system(l:cmd)
-  finally
-    lcd `=l:dir`
-  endtry
-  let l:lines = split(l:ret, '\r\n\|[\r\n]')
+  let l:cmd = ['ghc-mod'] + a:cmd
+  let l:lines = split(s:system(l:cmd), '\r\n\|[\r\n]')
   if empty(l:lines)
     if get(g:, 'necoghc_debug', 0)
       echohl ErrorMsg
