@@ -20,11 +20,15 @@ class Source(Base):
         self.input_pattern = r'import\s+\w*|[^. \t0-9]\.\w*'
 
         self.__executable_ghc = self.vim.funcs.executable('ghc-mod')
-        self.vim.call('necoghc#boot')
+        self.__is_booted = False
 
     def get_complete_position(self, context):
         if not self.__executable_ghc:
             return -1
+
+        if not self.__is_booted:
+            self.vim.call('necoghc#boot')
+            self.__is_booted = True
 
         return self.vim.call('necoghc#get_keyword_pos', context['input'])
 
