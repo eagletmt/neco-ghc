@@ -89,7 +89,7 @@ https://github.com/eagletmt/neco-ghc/issues/44
 
 It's the limitation of ghc-mod.
 ghc-mod can show symbols of installed modules only.
-ghc-mod cannot show symbols of developping modules or current source file.
+ghc-mod cannot show symbols of developing modules or current source file.
 
 ## License
 
