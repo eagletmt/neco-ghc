@@ -26,7 +26,7 @@ ujihisa added some new features.
 * Unarchive neco-ghc and put it into a dir of your &rtp.
 
 Note: If you use ghc-mod 5.4, you should use ghc-mod 5.5+.
-Because, ghc-mod 5.5 fix the rootdir problem.
+Because, ghc-mod 5.5 fixes the rootdir problem.
 
 https://github.com/DanielG/ghc-mod/issues/665
 
@@ -63,7 +63,7 @@ Default: 0
 
 Show detailed information (type) of symbols.
 You can enable it by adding `let g:necoghc_enable_detailed_browse = 1` in your vimrc.
-While it is quite useful, it would take longer boot time.
+While it is quite useful, it will take longer boot time.
 
 This feature was introduced in ghc-mod 1.11.5.
 
@@ -73,7 +73,8 @@ This feature was introduced in ghc-mod 1.11.5.
 Default: 0
 
 Show error message if ghc-mod command fails.
-Usually it would be noisy because `ghc-mod browse Your.Project.Module` always fails.
+Usually it will be noisy if `ghc-mod browse Your.Project.Module` always 
+fails.
 Use this flag only if you have some trouble.
 
 ## Troubleshoot
@@ -87,9 +88,9 @@ Or you can execute `:NecoGhcDiagnostics` command for debug.
 
 https://github.com/eagletmt/neco-ghc/issues/44
 
-It's the limitation of ghc-mod.
+It's a limitation of ghc-mod.
 ghc-mod can show symbols of installed modules only.
-ghc-mod cannot show symbols of developping modules or current source file.
+ghc-mod cannot show symbols of developing modules or current source file.
 
 ## License
 
