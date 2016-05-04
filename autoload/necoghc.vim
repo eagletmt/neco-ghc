@@ -20,6 +20,9 @@ let s:pragmas = [
 
 " todo: channel support
 let s:is_async = has('nvim')
+" let s:is_async = has('nvim') || (has('job') && has('channel')
+"         \                && exists('*job_getchannel')
+"         \                && exists('*job_info'))
 let s:job_info = {}
 
 function! necoghc#boot() abort "{{{
@@ -269,16 +272,51 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
           \ 'status': -1,
           \ 'mod': a:mod,
           \ }
+  elseif s:is_async
+    try
+      " Note: In Windows, job_start() does not work in shellslash.
+      let shellslash = 0
+      if exists('+shellslash')
+        let shellslash = &shellslash
+        set noshellslash
+      endif
+      let l:job = job_start(['ghc-mod'] + l:cmd, {
+            \   'callback': function('s:job_handler_vim'),
+            \ })
+      let l:id = s:channel2id(job_getchannel(l:job))
+      let s:job_info[l:id] = {
+            \ 'candidates': [],
+            \ 'eof': 0,
+            \ 'status': -1,
+            \ 'mod': a:mod,
+            \ 'job': l:job,
+            \ }
+    finally
+      if exists('+shellslash')
+        let &shellslash = shellslash
+      endif
+    endtry
   else
     call s:ghc_mod_caching_async(s:ghc_mod(l:cmd), a:mod)
   endif
 endfunction "}}}
+function! s:job_handler_vim(channel, msg) abort "{{{
+  call s:job_handler(s:channel2id(a:channel), a:msg, a:channel)
+endfunction"}}}
 function! s:job_handler(id, msg, event) abort "{{{
+  if !has_key(s:job_info, a:id)
+    return
+  endif
+
   let job = s:job_info[a:id]
 
   if (has('nvim') && a:event ==# 'exit')
+        \ || (!has('nvim') && ch_status(a:event) !=# 'open')
     let job.eof = 1
-    let job.status = a:msg
+    let job.status = has('nvim') ? a:msg : 0
+    if !has('nvim')
+      let job.candidates += split(iconv(a:msg, 'char', &encoding), "\n")
+    endif
     call s:ghc_mod_caching_async(job.candidates, job.mod)
     call remove(s:job_info, a:id)
     return
@@ -289,7 +327,8 @@ function! s:job_handler(id, msg, event) abort "{{{
         \ split(iconv(a:msg, 'char', &encoding), "\n")
 
   let candidates = job.candidates
-  if !empty(lines) && lines[0] != "\n" && !empty(job.candidates)
+  if has('nvim') && !empty(lines)
+        \ && lines[0] != "\n" && !empty(job.candidates)
     " Join to the previous line
     let candidates[-1] .= lines[0]
     call remove(lines, 0)
@@ -317,6 +356,9 @@ function! s:ghc_mod_caching_async(lines, mod) abort "{{{
   endfor
   let s:browse_cache[a:mod] = l:dict
 endfunction "}}}
+function! s:channel2id(channel) abort "{{{
+  return matchstr(a:channel, '\d\+')
+endfunction"}}}
 
 function! necoghc#caching_modules() abort "{{{
   let b:necoghc_modules_cache = s:extract_modules()
