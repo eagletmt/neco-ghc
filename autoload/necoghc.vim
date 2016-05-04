@@ -18,6 +18,10 @@ let s:pragmas = [
       \ 'WARNING',
       \ ]
 
+" todo: channel support
+let s:is_async = has('nvim')
+let s:job_info = {}
+
 function! necoghc#boot() abort "{{{
   if exists('s:browse_cache')
     return
@@ -238,22 +242,64 @@ function! necoghc#browse(mod) abort "{{{
   if !has_key(s:browse_cache, a:mod)
     call s:ghc_mod_caching_browse(a:mod)
   endif
-  return s:browse_cache[a:mod]
+  return get(s:browse_cache, a:mod, {})
 endfunction "}}}
 
 function! s:ghc_mod_caching_browse(mod) abort "{{{
-  let l:dict = {}
   let l:cmd = ['browse', '-o']
   if get(g:, 'necoghc_enable_detailed_browse')
     let l:cmd += ['-d']
   endif
-	" a callback to supply extra parameters to the `browse` command
-	" depending on the module name
-	if exists('*g:NecoghcExtraBrowseOptions')
-		let l:cmd += g:NecoghcExtraBrowseOptions(a:mod)
-	endif
+  " a callback to supply extra parameters to the `browse` command
+  " depending on the module name
+  if exists('*g:NecoghcExtraBrowseOptions')
+    let l:cmd += g:NecoghcExtraBrowseOptions(a:mod)
+  endif
   let l:cmd += [a:mod]
-  for l:line in s:ghc_mod(l:cmd)
+
+  if has('nvim')
+    let l:id = jobstart(['ghc-mod'] + l:cmd, {
+          \ 'on_stdout': function('s:job_handler'),
+          \ 'on_stderr': function('s:job_handler'),
+          \ 'on_exit': function('s:job_handler'),
+          \ })
+    let s:job_info[l:id] = {
+          \ 'candidates': [],
+          \ 'eof': 0,
+          \ 'status': -1,
+          \ 'mod': a:mod,
+          \ }
+  else
+    call s:ghc_mod_caching_async(s:ghc_mod(l:cmd), a:mod)
+  endif
+endfunction "}}}
+function! s:job_handler(id, msg, event) abort "{{{
+  let job = s:job_info[a:id]
+
+  if (has('nvim') && a:event ==# 'exit')
+    let job.eof = 1
+    let job.status = a:msg
+    call s:ghc_mod_caching_async(job.candidates, job.mod)
+    call remove(s:job_info, a:id)
+    return
+  endif
+
+  let lines = has('nvim') ?
+        \ map(a:msg, "iconv(v:val, 'char', &encoding)") :
+        \ split(iconv(a:msg, 'char', &encoding), "\n")
+
+  let candidates = job.candidates
+  if !empty(lines) && lines[0] != "\n" && !empty(job.candidates)
+    " Join to the previous line
+    let candidates[-1] .= lines[0]
+    call remove(lines, 0)
+  endif
+
+  let candidates += lines
+endfunction"}}}
+function! s:ghc_mod_caching_async(lines, mod) abort "{{{
+  let l:dict = {}
+  for l:line in a:lines
     let l:m = matchlist(l:line, '^\(class\|data\|type\|newtype\) \(\S\+\)\( .\+\)\?$')
     if !empty(l:m)
       let l:dict[l:m[2]] = {'kind': l:m[1], 'args': l:m[3][1 :]}
@@ -274,6 +320,11 @@ endfunction "}}}
 
 function! necoghc#caching_modules() abort "{{{
   let b:necoghc_modules_cache = s:extract_modules()
+  if s:is_async
+    for l:mod in keys(b:necoghc_modules_cache)
+      call necoghc#browse(l:mod)
+    endfor
+  endif
 endfunction "}}}
 
 function! necoghc#get_modules() abort "{{{
@@ -407,7 +458,8 @@ function! s:system(list) abort "{{{
       let s:exists_vimproc = 0
     endtry
   endif
-  return s:exists_vimproc ? vimproc#system(a:list) : system(join(a:list, ' '))
+  return s:exists_vimproc && !has('nvim') ?
+        \ vimproc#system(a:list) : system(join(a:list, ' '))
 endfunction "}}}
 
 function! s:on_haskell() abort "{{{
