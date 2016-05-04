@@ -15,6 +15,7 @@ class Source(Base):
         self.mark = '[ghc]'
         self.filetypes = ['haskell', 'lhaskell']
         self.is_bytepos = True
+        self.rank = 500
 
         # force auto-completion on importing functions
         self.input_pattern = r'import\s+\w*|[^. \t0-9]\.\w*'
