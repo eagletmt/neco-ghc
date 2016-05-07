@@ -24,6 +24,7 @@ let s:is_async = has('nvim')
 "         \                && exists('*job_getchannel')
 "         \                && exists('*job_info'))
 let s:job_info = {}
+let s:max_processes = 5
 
 function! necoghc#boot() abort "{{{
   if exists('s:browse_cache')
@@ -260,6 +261,16 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
   endif
   let l:cmd += [a:mod]
 
+  if !s:is_async
+    call s:ghc_mod_caching_async(s:ghc_mod(l:cmd), a:mod)
+    return
+  endif
+
+  if len(s:job_info) > s:max_processes
+        \ || !empty(filter(copy(s:job_info), 'v:val.mod != a:mod'))
+    return
+  endif
+
   if has('nvim')
     let l:id = jobstart(['ghc-mod'] + l:cmd, {
           \ 'on_stdout': function('s:job_handler'),
@@ -296,8 +307,6 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
         let &shellslash = shellslash
       endif
     endtry
-  else
-    call s:ghc_mod_caching_async(s:ghc_mod(l:cmd), a:mod)
   endif
 endfunction "}}}
 function! s:job_handler_vim(channel, msg) abort "{{{
