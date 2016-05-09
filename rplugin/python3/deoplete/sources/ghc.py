@@ -11,8 +11,8 @@ class Source(Base):
     def __init__(self, vim):
         Base.__init__(self, vim)
 
-        self.name = 'ghc'
-        self.mark = '[ghc]'
+        self.name = 'k'
+        self.mark = '[λ]'
         self.filetypes = ['haskell', 'lhaskell']
         self.is_bytepos = True
         self.rank = 500
