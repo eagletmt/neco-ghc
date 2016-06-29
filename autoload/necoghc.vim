@@ -388,26 +388,42 @@ endfunction "}}}
 function! s:ghc_mod(cmd) abort "{{{
   let l:cmd = ['ghc-mod'] + a:cmd
   let l:lines = split(s:system(l:cmd), '\r\n\|[\r\n]')
-  if empty(l:lines)
-    if get(g:, 'necoghc_debug', 0)
-      echohl ErrorMsg
-      echomsg printf('neco-ghc: ghc-mod returned nothing: %s', join(l:cmd, ' '))
-      echohl None
-    endif
-    return []
-  elseif l:lines[0] =~# '^Dummy:0:0:Error:'
+
+  let l:warnings = filter(copy(l:lines), "v:val =~# '^Warning:'")
+  let l:lines = filter(copy(l:lines), "v:val !~# '^Warning:'")
+  let l:errors = filter(copy(l:lines), "v:val =~# '^Dummy:0:0:Error:'")
+
+  if empty(l:lines) && get(g:, 'necoghc_debug', 0)
+    echohl ErrorMsg
+    echomsg printf('neco-ghc: ghc-mod returned nothing: %s', join(l:cmd, ' '))
+    echohl None
+  endif
+
+  if !empty(l:errors)
     if get(g:, 'necoghc_debug', 0)
       echohl ErrorMsg
       echomsg printf('neco-ghc: ghc-mod returned error messages: %s', join(l:cmd, ' '))
-      for l:line in l:lines
+      for l:line in l:errors
         echomsg l:line
       endfor
       echohl None
     endif
     return []
-  else
-    return l:lines
   endif
+
+  if !empty(l:warnings)
+    if get(g:, 'necoghc_debug', 0)
+      echohl ErrorMsg
+      echomsg printf('neco-ghc: ghc-mod returned warning messages: %s', join(l:cmd, ' '))
+      for l:line in l:warnings
+        echomsg l:line
+      endfor
+      echohl None
+    endif
+    return []
+  endif
+
+  return l:lines
 endfunction "}}}
 
 function! s:extract_modules() abort "{{{
