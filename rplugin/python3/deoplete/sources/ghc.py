@@ -23,13 +23,21 @@ class Source(Base):
         self.__executable_ghc = self.vim.funcs.executable('ghc-mod')
         self.__is_booted = False
 
+    def __boot(self):
+        if self.__is_booted:
+            return
+
+        self.vim.call('necoghc#boot')
+        self.__is_booted = True
+
+    def on_event(self, context):
+        self.__boot()
+
     def get_complete_position(self, context):
         if not self.__executable_ghc:
             return -1
 
-        if not self.__is_booted:
-            self.vim.call('necoghc#boot')
-            self.__is_booted = True
+        self.__boot()
 
         return self.vim.call('necoghc#get_keyword_pos', context['input'])
 
@@ -37,4 +45,3 @@ class Source(Base):
         return self.vim.call('necoghc#get_complete_words',
                              context['complete_position'],
                              context['complete_str'])
-
