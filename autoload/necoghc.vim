@@ -105,11 +105,11 @@ function! s:word_prefix(dict, keyword, need_prefix_filter) abort "{{{
 endfunction "}}}
 
 function! s:to_desc(sym, dict) abort
-  let l:desc = '[ghc] '
+  let l:desc = '[λ] '
   if has_key(a:dict, 'kind')
     let l:desc .= printf('%s %s %s', a:dict.kind, a:sym, a:dict.args)
   elseif has_key(a:dict, 'type')
-    let l:desc .= printf('%s :: %s', a:sym, a:dict.type)
+    let l:desc .= printf(': %s', a:dict.type)
   else
     let l:desc .= a:sym
   endif
@@ -165,27 +165,27 @@ function! necoghc#get_complete_words(cur_keyword_pos, cur_keyword_str) abort "{{
       let s:list_cache = s:ghc_mod(['list'])
     endif
     for l:mod in s:list_cache
-      call add(l:list, { 'word': l:mod, 'menu': '[ghc] ' . l:mod })
+      call add(l:list, { 'word': l:mod, 'menu': '[λ] ' . l:mod })
     endfor
   elseif l:syn =~# 'Pragma'
     if l:line[:a:cur_keyword_pos-1] =~# '{-#\s\+$'
       for l:p in s:pragmas
-        call add(l:list, { 'word': l:p, 'menu': '[ghc] ' . l:p })
+        call add(l:list, { 'word': l:p, 'menu': '[λ] ' . l:p })
       endfor
     elseif l:line =~# 'LANGUAGE'
       if !exists('s:lang_cache')
         let s:lang_cache = s:ghc_mod(['lang'])
       endif
       for l:lang in s:lang_cache
-        call add(l:list, { 'word': l:lang, 'menu': '[ghc] ' . l:lang })
-        call add(l:list, { 'word': 'No' . l:lang, 'menu': '[ghc] No' . l:lang })
+        call add(l:list, { 'word': l:lang, 'menu': '[λ] ' . l:lang })
+        call add(l:list, { 'word': 'No' . l:lang, 'menu': '[λ] No' . l:lang })
       endfor
     elseif l:line =~# 'OPTIONS_GHC'
       if !exists('s:flag_cache')
         let s:flag_cache = s:ghc_mod(['flag'])
       endif
       for l:flag in s:flag_cache
-        call add(l:list, { 'word': l:flag, 'menu': '[ghc] ' . l:flag })
+        call add(l:list, { 'word': l:flag, 'menu': '[λ] ' . l:flag })
       endfor
     endif
   elseif l:cur_keyword_str =~# '\.'
