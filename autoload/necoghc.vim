@@ -359,7 +359,9 @@ function! s:ghc_mod_caching_async(lines, mod) abort "{{{
         let l:dict[l:line] = {}
       else
         " Maybe some error occurred.
-        break
+        echohl ErrorMsg
+        echomsg printf('neco-ghc: %s', l:line)
+        echohl None
       endif
     endif
   endfor
