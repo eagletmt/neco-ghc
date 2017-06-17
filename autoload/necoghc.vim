@@ -272,7 +272,7 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
   endif
 
   if has('nvim')
-    let l:id = jobstart(['ghc-mod'] + l:cmd, {
+    let l:id = jobstart(['ghc-mod', '--verbose', 'error'] + l:cmd, {
           \ 'on_stdout': function('s:job_handler'),
           \ 'on_stderr': function('s:job_handler'),
           \ 'on_exit': function('s:job_handler'),
@@ -291,7 +291,7 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
         let shellslash = &shellslash
         set noshellslash
       endif
-      let l:job = job_start(['ghc-mod'] + l:cmd, {
+      let l:job = job_start(['ghc-mod', '--verbose', 'error'] + l:cmd, {
             \   'callback': function('s:job_handler_vim'),
             \ })
       let l:id = s:channel2id(job_getchannel(l:job))
@@ -358,10 +358,12 @@ function! s:ghc_mod_caching_async(lines, mod) abort "{{{
       elseif l:line =~# '^\S\+$'
         let l:dict[l:line] = {}
       else
-        " Maybe some error occurred.
-        echohl ErrorMsg
-        echomsg printf('neco-ghc: %s', l:line)
-        echohl None
+        " Maybe some error occurred, ignore empty line.
+        if l:line !~# ''
+          echohl ErrorMsg
+          echomsg printf('neco-ghc: %s', l:line)
+          echohl None
+        endif
       endif
     endif
   endfor
@@ -388,7 +390,7 @@ function! necoghc#get_modules() abort "{{{
 endfunction "}}}
 
 function! s:ghc_mod(cmd) abort "{{{
-  let l:cmd = ['ghc-mod'] + a:cmd
+  let l:cmd = ['ghc-mod', '--verbose', 'error'] + a:cmd
   let l:lines = split(s:system(l:cmd), '\r\n\|[\r\n]')
 
   let l:warnings = filter(copy(l:lines), "v:val =~# '^Warning:'")
@@ -550,7 +552,7 @@ function! s:get_ghcmod_root() abort "{{{
     try
       lcd `=fnamemodify(bufname('%'), ':p:h')`
       let b:ghcmod_root =
-        \ substitute(s:system(['ghc-mod', 'root']), '\n*$', '', '')
+        \ substitute(s:system(['ghc-mod', '--verbose', 'error', 'root']), '\n*$', '', '')
     finally
       lcd `=l:dir`
     endtry
