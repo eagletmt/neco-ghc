@@ -433,7 +433,8 @@ function! s:extract_modules() abort "{{{
 
   let l:in_module = 0
   let l:line = 1
-  while l:line <= line('.')
+  let l:max = min([line('$'), 100])
+  while l:line <= l:max
     let l:str = getline(l:line)
     if l:str =~# '^import\s\+'
       let l:idx = matchend(l:str, '^import\s\+')
