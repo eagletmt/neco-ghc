@@ -77,6 +77,15 @@ Usually it will be noisy if `ghc-mod browse Your.Project.Module` always
 fails.
 Use this flag only if you have some trouble.
 
+### `g:necoghc_use_stack`
+Default: 0
+
+Allow using stack's own ghc-mod.
+It will change direct `ghc-mod` mod calls to `stack exec --no-stack-exe ghc-mod
+--` instead.
+Use this flag if your globally installed ghc-mod doesn't work properly with you
+stack projects.
+
 ## Troubleshoot
 
 ### Q: neco-ghc does not work
