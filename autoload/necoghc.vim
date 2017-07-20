@@ -363,13 +363,11 @@ function! s:ghc_mod_caching_async(lines, mod) abort "{{{
         let l:dict[l:m[1]] = {'type': l:m[2]}
       elseif l:line =~# '^\S\+$'
         let l:dict[l:line] = {}
-      else
+      elseif l:line != ""
         " Maybe some error occurred.
-        if l:line != ""
-          echohl ErrorMsg
-          echomsg printf('neco-ghc: %s', l:line)
-          echohl None
-        endif
+        echohl ErrorMsg
+        echomsg printf('neco-ghc: %s', l:line)
+        echohl None
       endif
     endif
   endfor
