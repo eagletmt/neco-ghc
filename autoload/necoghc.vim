@@ -374,7 +374,7 @@ function! s:ghc_mod_caching_async(lines, mod) abort "{{{
   let s:browse_cache[a:mod] = l:dict
 endfunction "}}}
 function! s:channel2id(channel) abort "{{{
-  return matchstr(a:channel, '\d\+')
+  return get(ch_info(a:channel), 'id')
 endfunction"}}}
 
 function! necoghc#caching_modules() abort "{{{
