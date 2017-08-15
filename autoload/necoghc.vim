@@ -273,7 +273,7 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
   endif
 
   if len(s:job_info) > s:max_processes
-        \ || !empty(filter(copy(s:job_info), 'v:val.mod != a:mod'))
+        \ || !empty(filter(copy(s:job_info), 'v:val.mod ==# a:mod'))
     return
   endif
 
