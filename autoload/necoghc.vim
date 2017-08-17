@@ -273,7 +273,7 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
   endif
 
   if len(s:job_info) > s:max_processes
-        \ || !empty(filter(copy(s:job_info), 'v:val.mod != a:mod'))
+        \ || !empty(filter(copy(s:job_info), 'v:val.mod ==# a:mod'))
     return
   endif
 
@@ -299,6 +299,7 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
       endif
       let l:job = job_start(s:ghc_mod_path + l:cmd, {
             \   'callback': function('s:job_handler_vim'),
+            \   'close_cb': function('s:job_close_callback_vim'),
             \ })
       let l:id = s:channel2id(job_getchannel(l:job))
       let s:job_info[l:id] = {
@@ -316,7 +317,10 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
   endif
 endfunction "}}}
 function! s:job_handler_vim(channel, msg) abort "{{{
-  call s:job_handler(s:channel2id(a:channel), a:msg, a:channel)
+  call s:job_handler(s:channel2id(a:channel), a:msg, '')
+endfunction"}}}
+function! s:job_close_callback_vim(channel) abort "{{{
+  call s:job_handler(s:channel2id(a:channel), '', 'exit')
 endfunction"}}}
 function! s:job_handler(id, msg, event) abort "{{{
   if !has_key(s:job_info, a:id)
@@ -325,13 +329,9 @@ function! s:job_handler(id, msg, event) abort "{{{
 
   let job = s:job_info[a:id]
 
-  if (has('nvim') && a:event ==# 'exit')
-        \ || (!has('nvim') && ch_status(a:event) !=# 'open')
+  if a:event ==# 'exit'
     let job.eof = 1
     let job.status = has('nvim') ? a:msg : 0
-    if !has('nvim')
-      let job.candidates += split(iconv(a:msg, 'char', &encoding), "\n")
-    endif
     call s:ghc_mod_caching_async(job.candidates, job.mod)
     call remove(s:job_info, a:id)
     return
@@ -374,7 +374,7 @@ function! s:ghc_mod_caching_async(lines, mod) abort "{{{
   let s:browse_cache[a:mod] = l:dict
 endfunction "}}}
 function! s:channel2id(channel) abort "{{{
-  return matchstr(a:channel, '\d\+')
+  return get(ch_info(a:channel), 'id')
 endfunction"}}}
 
 function! necoghc#caching_modules() abort "{{{
