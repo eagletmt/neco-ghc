@@ -37,6 +37,12 @@ function! necoghc#boot() abort "{{{
     let s:ghc_mod_path = ['stack', 'exec', '--no-stack-exe', 'ghc-mod', '--']
   endif
 
+  let l:opts = get(g:, 'ghcmod_ghc_options', [])
+
+  for l:opt in l:opts
+    call extend(s:ghc_mod_path, ['-g', l:opt])
+  endfor
+
   let s:browse_cache = {}
   call s:ghc_mod_caching_browse('Prelude')
 
