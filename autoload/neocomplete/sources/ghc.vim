@@ -28,7 +28,7 @@ function! s:source.gather_candidates(context) abort
 endfunction
 
 function! neocomplete#sources#ghc#define() abort
-  if !executable('ghc-mod')
+  if g:necoghc#executable ==# ''
     return {}
   endif
 

@@ -1,6 +1,6 @@
-# neco-ghc: ghc-mod completion for neocomplcache/neocomplete/deoplete
+# neco-ghc: ghc-mod/hhpc completion for neocomplcache/neocomplete/deoplete
 
-A completion plugin for Haskell, using ghc-mod
+A completion plugin for Haskell, using ghc-mod or hhpc
 
 ## What is neco-ghc
 
@@ -22,7 +22,8 @@ ujihisa added some new features.
 
 ## Install
 
-* Install ghc-mod package by `stack install ghc-mod` or `cabal install ghc-mod`
+* Install the ghc-mod package by `stack install ghc-mod` or `cabal install ghc-mod`
+OR install the hhpc package by `stack install hhpc` or `cabal install hhpc`
 * Unarchive neco-ghc and put it into a dir of your &rtp.
 
 Note: If you use ghc-mod 5.4, you should use ghc-mod 5.5+.
@@ -72,7 +73,7 @@ This feature was introduced in ghc-mod 1.11.5.
 ### `g:necoghc_debug`
 Default: 0
 
-Show error message if ghc-mod command fails.
+Show error message if ghc-mod/hhpc command fails.
 Usually it will be noisy if `ghc-mod browse Your.Project.Module` always 
 fails.
 Use this flag only if you have some trouble.
@@ -80,17 +81,17 @@ Use this flag only if you have some trouble.
 ### `g:necoghc_use_stack`
 Default: 0
 
-Allow using stack's own ghc-mod.
-It will change direct `ghc-mod` mod calls to `stack exec --no-stack-exe ghc-mod
---` instead.
-Use this flag if your globally installed ghc-mod doesn't work properly with your
+Allow using stack's own ghc-mod/hhpc.
+If you are using ghc-mod, it will change direct `ghc-mod` mod calls to `stack
+exec --no-stack-exe ghc-mod --` instead. The same goes for hhpc.
+Use this flag if your globally installed ghc-mod/hhpc doesn't work properly with your
 stack projects.
 
 ## Troubleshoot
 
 ### Q: neco-ghc does not work
 
-Check the $PATH variable in vim contains the path to your ghc-mod command.
+Check the $PATH variable in vim contains the path to your ghc-mod/hhpc command.
 Or you can execute `:NecoGhcDiagnostics` command for debug.
 
 ### Q: Completion isn't working for local functions or modules

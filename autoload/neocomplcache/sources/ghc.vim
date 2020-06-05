@@ -30,7 +30,7 @@ function! s:source.get_complete_words(cur_keyword_pos, cur_keyword_str) abort
 endfunction
 
 function! neocomplcache#sources#ghc#define() abort
-  if !executable('ghc-mod')
+  if g:necoghc#executable ==# ''
     return {}
   endif
   return s:source

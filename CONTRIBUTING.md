@@ -11,8 +11,8 @@ It shows your environment information possibly related to neco-ghc.
 
 - Current filetype
     - neco-ghc only works in the buffer with filetype haskell or lhaskell.
-- ghc-mod executable (required)
-    - neco-ghc requires [ghc-mod](https://github.com/kazu-yamamoto/ghc-mod) and it must be placed in your `$PATH`.
+- ghc-mod OR hhpc executable (required)
+    - neco-ghc requires [ghc-mod](https://github.com/kazu-yamamoto/ghc-mod) or [hhp](https://github.com/kazu-yamamoto/hhp) and they must be placed in your `$PATH`.
 - 'omnifunc'
     - To use Vim builtin completion, `'omnifunc'` must be set to `necoghc#omnifunc` by `setlocal omnifunc=necoghc#omnifunc`.
 - Completion plugin installation (optional)
