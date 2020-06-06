@@ -26,7 +26,15 @@ let s:is_async = has('nvim')
 let s:job_info = {}
 let s:max_processes = 5
 
-let s:ghc_mod_path = ['ghc-mod']
+if executable('ghc-mod')
+  let g:necoghc#executable = 'ghc-mod'
+elseif executable('hhpc')
+  let g:necoghc#executable = 'hhpc'
+else
+  let g:necoghc#executable = ''
+endif
+
+let s:exe_path = [g:necoghc#executable]
 
 function! necoghc#boot() abort "{{{
   if exists('s:browse_cache')
@@ -34,13 +42,13 @@ function! necoghc#boot() abort "{{{
   endif
 
   if get(g:, 'necoghc_use_stack', 0)
-    let s:ghc_mod_path = ['stack', 'exec', '--no-stack-exe', 'ghc-mod', '--']
+    let s:exe_path = ['stack', 'exec', '--no-stack-exe', g:necoghc#executable, '--']
   endif
 
   let l:opts = get(g:, 'ghcmod_ghc_options', [])
 
   for l:opt in l:opts
-    call extend(s:ghc_mod_path, ['-g', l:opt])
+    call extend(s:exe_path, ['-g', l:opt])
   endfor
 
   let s:browse_cache = {}
@@ -284,7 +292,7 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
   endif
 
   if has('nvim')
-    let l:id = jobstart(s:ghc_mod_path + l:cmd, {
+    let l:id = jobstart(s:exe_path + l:cmd, {
           \ 'on_stdout': function('s:job_handler'),
           \ 'on_stderr': function('s:job_handler'),
           \ 'on_exit': function('s:job_handler'),
@@ -303,7 +311,7 @@ function! s:ghc_mod_caching_browse(mod) abort "{{{
         let shellslash = &shellslash
         set noshellslash
       endif
-      let l:job = job_start(s:ghc_mod_path + l:cmd, {
+      let l:job = job_start(s:exe_path + l:cmd, {
             \   'callback': function('s:job_handler_vim'),
             \   'close_cb': function('s:job_close_callback_vim'),
             \ })
@@ -400,7 +408,7 @@ function! necoghc#get_modules() abort "{{{
 endfunction "}}}
 
 function! s:ghc_mod(cmd) abort "{{{
-  let l:cmd = s:ghc_mod_path + a:cmd
+  let l:cmd = s:exe_path + a:cmd
   let l:lines = split(s:system(l:cmd), '\r\n\|[\r\n]')
 
   let l:warnings = filter(copy(l:lines), "v:val =~# '^Warning:'")
@@ -409,14 +417,14 @@ function! s:ghc_mod(cmd) abort "{{{
 
   if empty(l:lines) && get(g:, 'necoghc_debug', 0)
     echohl ErrorMsg
-    echomsg printf('neco-ghc: ghc-mod returned nothing: %s', join(l:cmd, ' '))
+    echomsg printf('neco-ghc: ' . g:necoghc#executable . ' returned nothing: %s', join(l:cmd, ' '))
     echohl None
   endif
 
   if !empty(l:errors)
     if get(g:, 'necoghc_debug', 0)
       echohl ErrorMsg
-      echomsg printf('neco-ghc: ghc-mod returned error messages: %s', join(l:cmd, ' '))
+      echomsg printf('neco-ghc: ' . g:necoghc#executable . ' returned error messages: %s', join(l:cmd, ' '))
       for l:line in l:errors
         echomsg l:line
       endfor
@@ -428,7 +436,7 @@ function! s:ghc_mod(cmd) abort "{{{
   if !empty(l:warnings)
     if get(g:, 'necoghc_debug', 0)
       echohl ErrorMsg
-      echomsg printf('neco-ghc: ghc-mod returned warning messages: %s', join(l:cmd, ' '))
+      echomsg printf('neco-ghc: ' . g:necoghc#executable . ' returned warning messages: %s', join(l:cmd, ' '))
       for l:line in l:warnings
         echomsg l:line
       endfor
@@ -516,8 +524,12 @@ function! s:dangling_import(n) abort "{{{
 endfunction "}}}
 
 function! necoghc#ghc_mod_version() abort "{{{
-  let l:ret = s:system(s:ghc_mod_path + ['version'])
-  return matchstr(l:ret, '\cghc-mod\%(.exe\)\?\s\+version\s\+\zs\%(\d\+\.\)*\d\+')
+  let l:ret = s:system(s:exe_path + ['version'])
+  if g:necoghc#executable ==# 'ghc-mod'
+    return matchstr(l:ret, '\cghc-mod\%(.exe\)\?\s\+version\s\+\zs\%(\d\+\.\)*\d\+')
+  elseif g:necoghc#executable ==# 'hhpc'
+    return matchstr(l:ret, '\chhpc\%(.exe\)\?\s\+version\s\+\zs\%(\d\+\.\)*\d\+')
+  endif
 endfunction "}}}
 
 function! s:synname(...) abort "{{{
@@ -563,7 +575,7 @@ function! s:get_ghcmod_root() abort "{{{
     try
       lcd `=fnamemodify(bufname('%'), ':p:h')`
       let b:ghcmod_root =
-        \ substitute(s:system(s:ghc_mod_path + ['root']), '\n*$', '', '')
+        \ substitute(s:system(s:exe_path + ['root']), '\n*$', '', '')
     finally
       lcd `=l:dir`
     endtry

@@ -6,8 +6,11 @@ function! necoghc#diagnostics#report() abort
 
   echomsg 'Current filetype:' &l:filetype
 
-  let l:executable = executable('ghc-mod')
-  echomsg 'ghc-mod is executable:' l:executable
+  let l:ghc_mod_executable = executable('ghc-mod')
+  let l:hhpc_executable = executable('hhpc')
+  let l:executable = l:ghc_mod_executable || l:hhpc_executable
+  echomsg 'ghc-mod is executable:' l:ghc_mod_executable
+  echomsg 'hhpc-mod is executable:' l:hhpc_executable
   if !l:executable
     echomsg '  Your $PATH:' $PATH
   endif
