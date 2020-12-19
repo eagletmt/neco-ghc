@@ -22,8 +22,9 @@ ujihisa added some new features.
 
 ## Install
 
-* Install the ghc-mod package by `stack install ghc-mod` or `cabal install ghc-mod`
-OR install the hhpc package by `stack install hhpc` or `cabal install hhpc`
+* Install the ghc-mod package by `stack install ghc-mod` or `cabal install
+  ghc-mod` OR install the hhpc package by `stack install hhpc` or
+  `cabal install hhpc`
 * Unarchive neco-ghc and put it into a dir of your &rtp.
 
 Note: If you use ghc-mod 5.4, you should use ghc-mod 5.5+.

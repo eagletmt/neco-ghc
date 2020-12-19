@@ -26,7 +26,7 @@ class Source(Base):
         elif distutils.spawn.find_executable('hhpc') is not None:
             self.__executable_ghc = self.vim.funcs.executable('hhpc')
         else:
-            self.__executable_ghc = self.vim.funcs.executable('')
+            self.__executable_ghc = False
 
         self.__is_booted = False
 
