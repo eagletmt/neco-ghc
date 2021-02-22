@@ -26,10 +26,10 @@ let s:is_async = has('nvim')
 let s:job_info = {}
 let s:max_processes = 5
 
-if executable('ghc-mod')
-  let g:necoghc#executable = 'ghc-mod'
-elseif executable('hhpc')
+if executable('hhpc')
   let g:necoghc#executable = 'hhpc'
+elseif executable('ghc-mod')
+  let g:necoghc#executable = 'ghc-mod'
 else
   let g:necoghc#executable = ''
 endif
@@ -525,10 +525,10 @@ endfunction "}}}
 
 function! necoghc#ghc_mod_version() abort "{{{
   let l:ret = s:system(s:exe_path + ['version'])
-  if g:necoghc#executable ==# 'ghc-mod'
-    return matchstr(l:ret, '\cghc-mod\%(.exe\)\?\s\+version\s\+\zs\%(\d\+\.\)*\d\+')
-  elseif g:necoghc#executable ==# 'hhpc'
+  if g:necoghc#executable ==# 'hhpc'
     return matchstr(l:ret, '\chhpc\%(.exe\)\?\s\+version\s\+\zs\%(\d\+\.\)*\d\+')
+  elseif g:necoghc#executable ==# 'ghc-mod'
+    return matchstr(l:ret, '\cghc-mod\%(.exe\)\?\s\+version\s\+\zs\%(\d\+\.\)*\d\+')
   endif
 endfunction "}}}
 

@@ -21,10 +21,10 @@ class Source(Base):
         # force auto-completion on importing functions
         self.input_pattern = r'import\s+\w*|[^. \t0-9]\.\w*'
 
-        if distutils.spawn.find_executable('ghc-mod') is not None:
-            self.__executable_ghc = self.vim.funcs.executable('ghc-mod')
-        elif distutils.spawn.find_executable('hhpc') is not None:
+        if distutils.spawn.find_executable('hhpc') is not None:
             self.__executable_ghc = self.vim.funcs.executable('hhpc')
+        elif distutils.spawn.find_executable('ghc-mod') is not None:
+            self.__executable_ghc = self.vim.funcs.executable('ghc-mod')
         else:
             self.__executable_ghc = False
 
